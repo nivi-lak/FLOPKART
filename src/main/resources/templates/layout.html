@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${pageTitle} ?: 'Flopkart'">Flopkart</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f1f3f6; color: #212121; }
+
+        /* Navbar */
+        nav {
+            background: #2874f0;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        nav .brand {
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        nav .brand span { color: #ffe500; font-style: italic; }
+        nav form.search-bar {
+            flex: 1;
+            display: flex;
+            max-width: 500px;
+        }
+        nav form.search-bar input {
+            flex: 1;
+            padding: 10px 14px;
+            border: none;
+            border-radius: 2px 0 0 2px;
+            font-size: 14px;
+        }
+        nav form.search-bar button {
+            padding: 10px 16px;
+            background: white;
+            border: none;
+            border-radius: 0 2px 2px 0;
+            cursor: pointer;
+            font-weight: bold;
+            color: #2874f0;
+        }
+        nav .nav-links { margin-left: auto; display: flex; gap: 16px; }
+        nav .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        nav .nav-links a:hover { text-decoration: underline; }
+
+        /* Main content */
+        .container {
+            max-width: 1200px;
+            margin: 24px auto;
+            padding: 0 16px;
+        }
+
+        /* Flash messages */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+        .alert-success { background: #e8f5e9; color: #2e7d32; border-left: 4px solid #4caf50; }
+        .alert-error   { background: #ffebee; color: #c62828; border-left: 4px solid #f44336; }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            text-align: center;
+        }
+        .btn-primary  { background: #fb641b; color: white; }
+        .btn-blue     { background: #2874f0; color: white; }
+        .btn-danger   { background: #ff4444; color: white; }
+        .btn-secondary{ background: #e0e0e0; color: #212121; }
+
+        footer {
+            text-align: center;
+            padding: 24px;
+            margin-top: 40px;
+            background: #212121;
+            color: #9e9e9e;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav>
+    <a class="brand" th:href="@{/}">Flop<span>kart</span></a>
+
+    <form class="search-bar" th:action="@{/search}" method="get">
+        <input type="text" name="q" placeholder="Search for products, brands and more"
+               th:value="${param.q}"/>
+        <button type="submit">&#128269;</button>
+    </form>
+
+    <div class="nav-links">
+        <!-- Guest links -->
+        <a th:href="@{/auth/login}" sec:authorize="isAnonymous()">Login</a>
+        <a th:href="@{/auth/register}" sec:authorize="isAnonymous()">Register</a>
+
+        <!-- Logged-in links -->
+        <a th:href="@{/cart}" sec:authorize="isAuthenticated()">&#128722; Cart</a>
+        <a th:href="@{/orders}" sec:authorize="isAuthenticated()">My Orders</a>
+        <a th:href="@{/seller/dashboard}" sec:authorize="hasRole('SELLER')">My Shop</a>
+        <a th:href="@{/auth/logout}" sec:authorize="isAuthenticated()">Logout</a>
+    </div>
+</nav>
+
+<!-- Main content slot -->
+<div class="container">
+
+    <!-- Flash messages -->
+    <div class="alert alert-success"
+         th:if="${successMessage}"
+         th:text="${successMessage}"></div>
+    <div class="alert alert-error"
+         th:if="${errorMessage}"
+         th:text="${errorMessage}"></div>
+
+    <!-- Each page fills this fragment -->
+    <div th:replace="~{${view} :: content}">
+        Page content goes here
+    </div>
+
+</div>
+
+<footer>
+    &copy; 2024 Flopkart &mdash; OOAD Mini Project &mdash; Team of 4
+</footer>
+
+</body>
+</html>
