@@ -25,10 +25,6 @@ public class DataSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) {
         seedUsers();
-        // Member 1: seedCategories(), seedProducts()
-        // Member 2: seedSellers()
-        // Member 3: nothing needed (carts created at runtime)
-        // Member 4: nothing needed (orders created at runtime)
     }
 
     private void seedUsers() {
