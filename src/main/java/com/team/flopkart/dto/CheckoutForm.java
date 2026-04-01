@@ -1,13 +1,20 @@
 package com.team.flopkart.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 /**
  * DTO for checkout form data.
  * Contains shipping information for order placement.
  */
 public class CheckoutForm {
 
+    @NotBlank(message = "Shipping address is required")
     private String shippingAddress;
+
+    @NotBlank(message = "Shipping city is required")
     private String shippingCity;
+
+    @NotBlank(message = "Shipping pincode is required")
     private String shippingPincode;
 
     // Constructors

@@ -11,6 +11,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import org.springframework.validation.BindingResult;
+import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.List;
 
@@ -40,23 +42,37 @@ public class OrderController {
 
     @GetMapping("/checkout")
     public String showCheckout(Principal principal, Model model) {
+        if (principal == null) {
+            return "redirect:/auth/login?returnUrl=/orders/checkout";
+        }
+
         User user = getLoggedInUser(principal);
         Cart cart = cartService.getCartByUser(user);
         if (cart == null || cart.getItems().isEmpty()) {
             return "redirect:/cart";
         }
+
         model.addAttribute("cart", cart);
         model.addAttribute("checkoutForm", new CheckoutForm());
         return "order/checkout";
     }
 
     @PostMapping("/checkout")
-    public String processCheckout(Principal principal, @ModelAttribute CheckoutForm checkoutForm, RedirectAttributes redirectAttributes) {
+    public String processCheckout(Principal principal, @Valid @ModelAttribute CheckoutForm checkoutForm, BindingResult result, RedirectAttributes redirectAttributes) {
+        if (principal == null) {
+            return "redirect:/auth/login?returnUrl=/orders/checkout";
+        }
+
         User user = getLoggedInUser(principal);
         Cart cart = cartService.getCartByUser(user);
         if (cart == null || cart.getItems().isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Cart is empty");
             return "redirect:/cart";
+        }
+
+        if (result.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", "Please fill in all required fields");
+            return "redirect:/orders/checkout";
         }
 
         try {

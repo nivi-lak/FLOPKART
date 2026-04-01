@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,7 +55,8 @@ public class OrderService {
         Order order = new Order(user, null, totalAmount, shippingAddress, shippingCity, shippingPincode);
         order = orderRepository.save(order);
 
-        // Create order items
+        // Create order items and populate order relationship
+        List<OrderItem> savedItems = new ArrayList<>();
         for (CartItem cartItem : cartItems) {
             OrderItem orderItem = new OrderItem(
                 order,
@@ -62,8 +64,11 @@ public class OrderService {
                 cartItem.getQuantity(),
                 BigDecimal.valueOf(cartItem.getProduct().getPrice())
             );
-            orderItemRepository.save(orderItem);
+            orderItem = orderItemRepository.save(orderItem);
+            savedItems.add(orderItem);
         }
+        order.setItems(savedItems);
+        orderRepository.save(order);
 
         // Publish order creation event (status change from null to PENDING)
         orderEventPublisher.publishOrderStatusChange(order, null, OrderStatus.PENDING);
