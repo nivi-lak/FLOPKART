@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Track Order - Flopkart</title>
+</head>
+<body>
+    <div th:replace="~{layout :: header}"></div>
+
+    <div class="container">
+        <h1>Track Order</h1>
+
+        <form th:action="@{/orders/track}" method="post" class="mb-4">
+            <div class="input-group">
+                <input type="text" class="form-control" name="orderNumber" placeholder="Enter Order Number" required>
+                <button class="btn btn-outline-secondary" type="submit">Track</button>
+            </div>
+        </form>
+
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <div th:if="${order}" class="card">
+            <div class="card-header">
+                <h5>Order #<span th:text="${order.orderNumber}">ORD-123</span></h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Status:</strong> <span th:text="${order.status}">PENDING</span></p>
+                <p><strong>Total Amount:</strong> ₹<span th:text="${order.totalAmount}">0.00</span></p>
+                <p><strong>Placed At:</strong> <span th:text="${#temporals.format(order.placedAt, 'dd/MM/yyyy HH:mm')}">Date</span></p>
+                <p><strong>Updated At:</strong> <span th:text="${#temporals.format(order.updatedAt, 'dd/MM/yyyy HH:mm')}">Date</span></p>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{layout :: footer}"></div>
+</body>
+</html>

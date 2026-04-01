@@ -2,6 +2,9 @@ package com.team.flopkart.config;
 
 import com.team.flopkart.model.*;
 import com.team.flopkart.repository.UserRepository;
+import com.team.flopkart.pattern.observer.OrderEventPublisher;
+import com.team.flopkart.pattern.observer.NotificationObserver;
+import com.team.flopkart.pattern.observer.InventoryObserver;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -15,16 +18,26 @@ public class DataSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final OrderEventPublisher orderEventPublisher;
+    private final NotificationObserver notificationObserver;
+    private final InventoryObserver inventoryObserver;
 
     public DataSeeder(UserRepository userRepository,
-                      PasswordEncoder passwordEncoder) {
+                      PasswordEncoder passwordEncoder,
+                      OrderEventPublisher orderEventPublisher,
+                      NotificationObserver notificationObserver,
+                      InventoryObserver inventoryObserver) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.orderEventPublisher = orderEventPublisher;
+        this.notificationObserver = notificationObserver;
+        this.inventoryObserver = inventoryObserver;
     }
 
     @Override
     public void run(String... args) {
         seedUsers();
+        registerObservers();
     }
 
     private void seedUsers() {
@@ -58,5 +71,11 @@ public class DataSeeder implements CommandLineRunner {
         userRepository.save(seller);
 
         System.out.println(">> DataSeeder: users seeded.");
+    }
+
+    private void registerObservers() {
+        orderEventPublisher.addObserver(notificationObserver);
+        orderEventPublisher.addObserver(inventoryObserver);
+        System.out.println(">> DataSeeder: observers registered.");
     }
 }

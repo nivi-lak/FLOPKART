@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flopkart - Online Shopping</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">Flop<span class="text-warning">kart</span></a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/products">Products</a>
+                <a class="nav-link" href="/cart">🛒 Cart</a>
+                <a class="nav-link" href="/orders/history">📦 Orders</a>
+                <a class="nav-link" href="/orders/track">Track Order</a>
+                <a class="nav-link" href="/auth/login">Login</a>
+                <a class="nav-link" href="/auth/register">Register</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8">
+                <h1>Welcome to Flopkart</h1>
+                <p class="lead">Your one-stop shop for all your needs!</p>
+                <a href="/products" class="btn btn-primary btn-lg">Shop Now</a>
+                <a href="/test/demo-checkout" class="btn btn-success btn-lg">Demo Checkout (Testing)</a>
+            </div>
+            <div class="col-md-4">
+                <h3>Quick Links</h3>
+                <ul class="list-group">
+                    <li class="list-group-item"><a href="/products">Browse Products</a></li>
+                    <li class="list-group-item"><a href="/orders/history">My Orders</a></li>
+                    <li class="list-group-item"><a href="/orders/track">Track Order</a></li>
+                    <li class="list-group-item"><a href="/cart">Shopping Cart</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-light mt-5 py-4">
+        <div class="container text-center">
+            <p>&copy; 2024 Flopkart - OOAD Mini Project</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

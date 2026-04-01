@@ -17,6 +17,9 @@ public interface ICartService {
     /** Get or create the cart for a user */
     Cart getOrCreateCart(User user);
 
+    /** Get the cart for a user (returns null if no cart) */
+    Cart getCartByUser(User user);
+
     /** Add a product to the cart (or increment qty if already present) */
     Cart addToCart(User user, Long productId, int quantity);
 

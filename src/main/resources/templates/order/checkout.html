@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Checkout - Flopkart</title>
+</head>
+<body>
+    <div th:replace="~{layout :: header}"></div>
+
+    <div class="container">
+        <h1>Checkout</h1>
+
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <h3>Order Summary</h3>
+                <div th:each="item : ${cart.items}" class="card mb-2">
+                    <div class="card-body">
+                        <h5 th:text="${item.product.name}">Product Name</h5>
+                        <p>Quantity: <span th:text="${item.quantity}">1</span></p>
+                        <p>Price: ₹<span th:text="${item.product.price}">0.00</span></p>
+                    </div>
+                </div>
+                <h4>Total: ₹<span th:text="${cart.getSubtotal()}">0.00</span></h4>
+            </div>
+
+            <div class="col-md-4">
+                <h3>Shipping Address</h3>
+                <form th:action="@{/orders/checkout}" method="post" th:object="${checkoutForm}">
+                    <div class="mb-3">
+                        <label for="shippingAddress" class="form-label">Address</label>
+                        <textarea class="form-control" id="shippingAddress" name="shippingAddress" th:field="*{shippingAddress}" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="shippingCity" class="form-label">City</label>
+                        <input type="text" class="form-control" id="shippingCity" name="shippingCity" th:field="*{shippingCity}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="shippingPincode" class="form-label">Pincode</label>
+                        <input type="text" class="form-control" id="shippingPincode" name="shippingPincode" th:field="*{shippingPincode}" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Place Order</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{layout :: footer}"></div>
+</body>
+</html>

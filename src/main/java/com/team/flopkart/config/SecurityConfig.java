@@ -36,6 +36,7 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/", "/products", "/products/**",
                     "/search", "/auth/**",
+                    "/test/**",  // Allow demo endpoints
                     "/h2-console/**",
                     "/css/**", "/js/**", "/images/**"
                 ).permitAll()
@@ -49,7 +50,7 @@ public class SecurityConfig {
             .formLogin(form -> form
                 .loginPage("/auth/login")
                 .loginProcessingUrl("/auth/login")
-                .defaultSuccessUrl("/", true)
+                .defaultSuccessUrl("/", false)  // Changed to false to allow redirect to original URL
                 .failureUrl("/auth/login?error=true")
                 .permitAll()
             )
