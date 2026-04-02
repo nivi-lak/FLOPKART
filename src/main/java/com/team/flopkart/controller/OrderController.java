@@ -112,6 +112,11 @@ public class OrderController {
         return "order/history";
     }
 
+    @GetMapping("/track")
+    public String showTrackForm(Model model) {
+        return "order/track";
+    }
+
     @GetMapping("/track/{orderNumber}")
     public String trackOrder(@PathVariable String orderNumber, Model model) {
         Order order = orderService.getOrderByOrderNumber(orderNumber);

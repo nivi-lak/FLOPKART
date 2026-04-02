@@ -7,17 +7,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="/">Flop<span class="text-warning">kart</span></a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="/cart">🛒 Cart</a>
-                <a class="nav-link" href="/orders/history">📦 Orders</a>
-                <a class="nav-link" href="/orders/track">Track Order</a>
-                <a class="nav-link" href="/auth/logout">Logout</a>
-            </div>
-        </div>
-    </nav>
+    <div th:replace="~{layout :: header}"></div>
 
     <div class="container mt-5">
         <div class="row">
@@ -58,24 +48,11 @@
         </div>
 
         <div class="mt-4 text-center">
-            <div class="alert alert-info">
-                <h5>Testing Instructions:</h5>
-                <ol class="text-start">
-                    <li>Add 1-2 products to your cart using the buttons above</li>
-                    <li>Click "View Cart" to see your cart</li>
-                    <li>Click "Proceed to Checkout" to enter shipping details</li>
-                    <li>Complete the order and test order history/tracking</li>
-                </ol>
-            </div>
             <a href="/cart" class="btn btn-success mt-2">View Cart & Checkout</a>
         </div>
     </div>
 
-    <footer class="bg-dark text-light mt-5 py-4">
-        <div class="container text-center">
-            <p>&copy; 2024 Flopkart - OOAD Mini Project</p>
-        </div>
-    </footer>
+    <div th:replace="~{layout :: footer}"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
