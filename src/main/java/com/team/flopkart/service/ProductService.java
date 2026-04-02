@@ -15,16 +15,16 @@ public class ProductService {
     private ProductRepository productRepository;
 
     /**
-     * Returns demo products for testing.
-     * Creates demo products on-the-fly if none exist.
+     * Returns all available products (placeholder implementation).
+     * If no products exist yet, seeds a few placeholders to support testing.
      */
-    public List<Product> getDemoProducts() {
+    public List<Product> getAllProducts() {
         List<Product> allProducts = productRepository.findAll();
-        
+
         if (allProducts.isEmpty()) {
             return createDemoProducts();
         }
-        
+
         return allProducts;
     }
 

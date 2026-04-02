@@ -96,8 +96,16 @@ public class OrderController {
         return "order/confirmation";
     }
 
+    @GetMapping
+    public String redirectToHistory(Principal principal) {
+        return "redirect:/orders/history";
+    }
+
     @GetMapping("/history")
     public String showOrderHistory(Principal principal, Model model) {
+        if (principal == null) {
+            return "redirect:/auth/login?returnUrl=/orders/history";
+        }
         User user = getLoggedInUser(principal);
         List<Order> orders = orderService.getOrdersByUser(user);
         model.addAttribute("orders", orders);
@@ -113,6 +121,25 @@ public class OrderController {
         }
         model.addAttribute("order", order);
         return "order/track";
+    }
+
+    @PostMapping("/update-status")
+    public String updateOrderStatus(Principal principal, @RequestParam Long orderId, @RequestParam OrderStatus status, RedirectAttributes redirectAttributes) {
+        User user = getLoggedInUser(principal);
+        Order order = orderService.getOrderById(orderId);
+        if (order == null) {
+            redirectAttributes.addFlashAttribute("error", "Order not found");
+            return "redirect:/orders/history";
+        }
+
+        if (!order.getUser().getId().equals(user.getId()) && user.getRole() != UserRole.ADMIN) {
+            redirectAttributes.addFlashAttribute("error", "Unauthorized");
+            return "redirect:/orders/history";
+        }
+
+        orderService.updateOrderStatus(order, status);
+        redirectAttributes.addFlashAttribute("success", "Order status updated to " + status);
+        return "redirect:/orders/history";
     }
 
     @PostMapping("/track")

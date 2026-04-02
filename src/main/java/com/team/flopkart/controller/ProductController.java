@@ -6,29 +6,34 @@ import com.team.flopkart.repository.UserRepository;
 import com.team.flopkart.repository.ProductRepository;
 import com.team.flopkart.service.ProductService;
 import com.team.flopkart.service.CartService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.team.flopkart.service.ReviewService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import java.security.Principal;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
 @Controller
 public class ProductController {
 
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
+    private final CartService cartService;
+    private final ProductRepository productRepository;
+    private final UserRepository userRepository;
+    private final ReviewService reviewService;
 
-    @Autowired
-    private CartService cartService;
-
-    @Autowired
-    private ProductRepository productRepository;
-
-    @Autowired
-    private UserRepository userRepository;
+    public ProductController(ProductService productService,
+                             CartService cartService,
+                             ProductRepository productRepository,
+                             UserRepository userRepository,
+                             ReviewService reviewService) {
+        this.productService = productService;
+        this.cartService = cartService;
+        this.productRepository = productRepository;
+        this.userRepository = userRepository;
+        this.reviewService = reviewService;
+    }
 
     @GetMapping("/")
     public String home() {
@@ -37,24 +42,21 @@ public class ProductController {
 
     @GetMapping("/products")
     public String listProducts(Model model) {
-        List<Product> products = productService.getDemoProducts();
+        List<Product> products = productService.getAllProducts();
         model.addAttribute("products", products);
-        return "product/demo-list";
+        return "product/list";
     }
 
-    /**
-     * Demo endpoint for testing Member 4 (Order & Review) functionality.
-     * Shows demo products page where user can add items to cart manually.
-     */
-    @GetMapping("/test/demo-checkout")
-    public String demoDemoCheckout(Model model) {
-        try {
-            List<Product> demoProducts = productService.getDemoProducts();
-            model.addAttribute("products", demoProducts);
-            return "product/demo-list";
-        } catch (Exception e) {
-            model.addAttribute("error", "Failed to load demo products: " + e.getMessage());
-            return "index";
+    @GetMapping("/products/{id}")
+    public String viewProduct(@PathVariable Long id, Model model) {
+        Product product = productService.getProductById(id);
+        if (product == null) {
+            return "redirect:/products";
         }
+
+        model.addAttribute("product", product);
+        model.addAttribute("reviews", reviewService.getReviewsByProduct(product));
+        model.addAttribute("averageRating", reviewService.getAverageRating(product));
+        return "product/detail";
     }
 }

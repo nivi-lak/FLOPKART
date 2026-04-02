@@ -24,6 +24,16 @@
                 <p><strong>Items:</strong> <span th:text="${order.items.size()}">0</span></p>
                 <a th:href="@{/orders/track/{orderNumber}(orderNumber=${order.orderNumber})}" class="btn btn-sm btn-outline-primary">Track Order</a>
                 <a th:if="${order.status.name() == 'DELIVERED'}" th:href="@{/reviews/form/{productId}/{orderId}(productId=${order.items[0].product.id}, orderId=${order.id})}" class="btn btn-sm btn-outline-success">Write Review</a>
+                <form th:if="${order.status.name() != 'DELIVERED'}" th:action="@{/orders/update-status}" method="post" style="display:inline-block; margin-left:8px;">
+                    <input type="hidden" name="orderId" th:value="${order.id}" />
+                    <select name="status" class="form-control form-control-sm" style="display:inline-block; width:auto;">
+                        <option th:value="${T(com.team.flopkart.model.OrderStatus).CONFIRMED}" th:text="'CONFIRMED'">CONFIRMED</option>
+                        <option th:value="${T(com.team.flopkart.model.OrderStatus).SHIPPED}" th:text="'SHIPPED'">SHIPPED</option>
+                        <option th:value="${T(com.team.flopkart.model.OrderStatus).DELIVERED}" th:text="'DELIVERED'">DELIVERED</option>
+                        <option th:value="${T(com.team.flopkart.model.OrderStatus).CANCELLED}" th:text="'CANCELLED'">CANCELLED</option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">Update Status</button>
+                </form>
             </div>
         </div>
     </div>

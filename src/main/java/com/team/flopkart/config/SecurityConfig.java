@@ -36,7 +36,6 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/", "/products", "/products/**",
                     "/search", "/auth/**",
-                    "/test/**",  // Allow demo endpoints
                     "/h2-console/**",
                     "/css/**", "/js/**", "/images/**"
                 ).permitAll()

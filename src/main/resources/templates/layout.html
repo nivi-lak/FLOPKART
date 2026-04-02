@@ -98,11 +98,12 @@
 </head>
 <body>
 
-<!-- Navbar -->
-<nav>
-    <a class="brand" th:href="@{/}">Flop<span>kart</span></a>
+<div th:fragment="header">
+    <!-- Navbar -->
+    <nav>
+        <a class="brand" th:href="@{/}">Flop<span>kart</span></a>
 
-    <form class="search-bar" th:action="@{/search}" method="get">
+        <form class="search-bar" th:action="@{/search}" method="get">
         <input type="text" name="q" placeholder="Search for products, brands and more"
                th:value="${param.q}"/>
         <button type="submit">&#128269;</button>
@@ -121,27 +122,15 @@
     </div>
 </nav>
 
-<!-- Main content slot -->
-<div class="container">
+<!-- Main content slot is in each page template directly -->
 
-    <!-- Flash messages -->
-    <div class="alert alert-success"
-         th:if="${successMessage}"
-         th:text="${successMessage}"></div>
-    <div class="alert alert-error"
-         th:if="${errorMessage}"
-         th:text="${errorMessage}"></div>
+</div> <!-- end header fragment -->
 
-    <!-- Each page fills this fragment -->
-    <div th:replace="~{${view} :: content}">
-        Page content goes here
-    </div>
-
+<div th:fragment="footer">
+    <footer>
+        &copy; 2024 Flopkart &mdash; OOAD Mini Project &mdash; Team of 4
+    </footer>
 </div>
-
-<footer>
-    &copy; 2024 Flopkart &mdash; OOAD Mini Project &mdash; Team of 4
-</footer>
 
 </body>
 </html>

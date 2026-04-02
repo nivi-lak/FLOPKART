@@ -5,6 +5,8 @@ import com.team.flopkart.repository.UserRepository;
 import com.team.flopkart.pattern.observer.OrderEventPublisher;
 import com.team.flopkart.pattern.observer.NotificationObserver;
 import com.team.flopkart.pattern.observer.InventoryObserver;
+import com.team.flopkart.repository.ProductRepository;
+import com.team.flopkart.repository.CategoryRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -21,22 +23,29 @@ public class DataSeeder implements CommandLineRunner {
     private final OrderEventPublisher orderEventPublisher;
     private final NotificationObserver notificationObserver;
     private final InventoryObserver inventoryObserver;
+    private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
     public DataSeeder(UserRepository userRepository,
                       PasswordEncoder passwordEncoder,
                       OrderEventPublisher orderEventPublisher,
                       NotificationObserver notificationObserver,
-                      InventoryObserver inventoryObserver) {
+                      InventoryObserver inventoryObserver,
+                      ProductRepository productRepository,
+                      CategoryRepository categoryRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.orderEventPublisher = orderEventPublisher;
         this.notificationObserver = notificationObserver;
         this.inventoryObserver = inventoryObserver;
+        this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
     public void run(String... args) {
         seedUsers();
+        seedCategoriesAndProducts();
         registerObservers();
     }
 
@@ -71,6 +80,48 @@ public class DataSeeder implements CommandLineRunner {
         userRepository.save(seller);
 
         System.out.println(">> DataSeeder: users seeded.");
+    }
+
+    private void seedCategoriesAndProducts() {
+        if (productRepository.count() > 0) return; // don't seed twice
+
+        // Get the demo seller
+        User seller = userRepository.findByEmail("seller@flopkart.com").orElse(null);
+        if (seller == null) return;
+
+        // Create categories
+        Category electronics = new Category("Electronics", "Electronic devices and gadgets");
+        electronics = categoryRepository.save(electronics);
+
+        Category clothing = new Category("Clothing", "Fashion and apparel");
+        clothing = categoryRepository.save(clothing);
+
+        // Create products
+        Product phone = new Product("iPhone 15", 79999.00, 50);
+        phone.setDescription("Latest iPhone with advanced features");
+        phone.setBrand("Apple");
+        phone.setCategory(electronics);
+        phone.setSeller(seller);
+        phone.setDiscountPercent(10);
+        productRepository.save(phone);
+
+        Product laptop = new Product("MacBook Pro", 129999.00, 20);
+        laptop.setDescription("Professional laptop for developers");
+        laptop.setBrand("Apple");
+        laptop.setCategory(electronics);
+        laptop.setSeller(seller);
+        laptop.setDiscountPercent(5);
+        productRepository.save(laptop);
+
+        Product shirt = new Product("Cotton T-Shirt", 999.00, 100);
+        shirt.setDescription("Comfortable cotton t-shirt");
+        shirt.setBrand("Generic");
+        shirt.setCategory(clothing);
+        shirt.setSeller(seller);
+        shirt.setDiscountPercent(0);
+        productRepository.save(shirt);
+
+        System.out.println(">> DataSeeder: categories and products seeded.");
     }
 
     private void registerObservers() {
