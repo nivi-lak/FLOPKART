@@ -93,7 +93,7 @@ public class ReviewController {
             Review review = reviewService.createReview(user, reviewForm.getProductId(),
                     reviewForm.getOrderId(), reviewForm.getRating(), reviewForm.getComment());
             redirectAttributes.addFlashAttribute("success", "Review submitted successfully!");
-            return "redirect:/products/detail/" + reviewForm.getProductId();
+            return "redirect:/products/" + reviewForm.getProductId();
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/reviews/form/" + reviewForm.getProductId() + "/" + reviewForm.getOrderId();
