@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Order Confirmation - Flopkart</title>
+</head>
+<body>
+    <div th:replace="~{layout :: header}"></div>
+
+    <div class="container">
+        <h1>Order Confirmation</h1>
+
+        <div class="alert alert-success">
+            <h4>Thank you for your order!</h4>
+            <p>Order Number: <strong th:text="${order.orderNumber}">ORD-123</strong></p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5>Order Details</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Status:</strong> <span th:text="${order.status}">PENDING</span></p>
+                <p><strong>Total Amount:</strong> ₹<span th:text="${order.totalAmount}">0.00</span></p>
+                <p><strong>Shipping Address:</strong> <span th:text="${order.shippingAddress}">Address</span>, <span th:text="${order.shippingCity}">City</span> - <span th:text="${order.shippingPincode}">Pincode</span></p>
+                <p><strong>Placed At:</strong> <span th:text="${#temporals.format(order.placedAt, 'dd/MM/yyyy HH:mm')}">Date</span></p>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <a href="/orders/history" class="btn btn-primary">View Order History</a>
+            <a href="/products" class="btn btn-secondary">Continue Shopping</a>
+        </div>
+    </div>
+
+    <div th:replace="~{layout :: footer}"></div>
+</body>
+</html>

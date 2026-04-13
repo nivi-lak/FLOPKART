@@ -5,6 +5,7 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title th:text="${pageTitle} ?: 'Flopkart'">Flopkart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: Arial, sans-serif; background: #f1f3f6; color: #212121; }
@@ -98,11 +99,12 @@
 </head>
 <body>
 
-<!-- Navbar -->
-<nav>
-    <a class="brand" th:href="@{/}">Flop<span>kart</span></a>
+<div th:fragment="header">
+    <!-- Navbar -->
+    <nav>
+        <a class="brand" th:href="@{/}">Flop<span>kart</span></a>
 
-    <form class="search-bar" th:action="@{/search}" method="get">
+        <form class="search-bar" th:action="@{/search}" method="get">
         <input type="text" name="q" placeholder="Search for products, brands and more"
                th:value="${param.q}"/>
         <button type="submit">&#128269;</button>
@@ -121,27 +123,18 @@
     </div>
 </nav>
 
-<!-- Main content slot -->
-<div class="container">
+<!-- Main content slot is in each page template directly -->
 
-    <!-- Flash messages -->
-    <div class="alert alert-success"
-         th:if="${successMessage}"
-         th:text="${successMessage}"></div>
-    <div class="alert alert-error"
-         th:if="${errorMessage}"
-         th:text="${errorMessage}"></div>
+</div> <!-- end header fragment -->
 
-    <!-- Each page fills this fragment -->
-    <div th:replace="~{${view} :: content}">
-        Page content goes here
-    </div>
-
+<div th:fragment="footer">
+    <footer class="bg-dark text-light py-3 mt-4">
+        <div class="container text-center">
+            &copy; 2024 Flopkart &mdash; OOAD Mini Project &mdash; Team of 4
+        </div>
+    </footer>
 </div>
 
-<footer>
-    &copy; 2024 Flopkart &mdash; OOAD Mini Project &mdash; Team of 4
-</footer>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

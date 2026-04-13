@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${product.name} + ' - Flopkart'">Product Detail - Flopkart</title>
+</head>
+<body>
+    <div th:replace="~{layout :: header}"></div>
+
+    <div class="container">
+        <h1 th:text="${product.name}">Product Name</h1>
+        <p th:text="${product.description}">Description</p>
+        <p><strong>Price:</strong> ₹<span th:text="${product.price}">0.00</span></p>
+        <p><strong>Stock:</strong> <span th:text="${product.stockQuantity}">0</span></p>
+        <p><strong>Category:</strong> <span th:text="${product.category != null ? product.category.name : 'N/A'}">N/A</span></p>
+
+        <div class="mb-3">
+            <form th:action="@{/cart/add}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <input type="hidden" name="productId" th:value="${product.id}" />
+                <input type="number" name="quantity" value="1" min="1" class="form-control mb-2" />
+                <button type="submit" class="btn btn-warning">Add to Cart</button>
+            </form>
+        </div>
+
+        <h2>Reviews</h2>
+        <div th:if="${#lists.isEmpty(reviews)}" class="alert alert-info">No reviews yet. Be the first to review this product.</div>
+        <div th:each="review : ${reviews}" class="card mb-2">
+            <div class="card-body">
+                <p><strong>Rating:</strong> <span th:text="${review.rating}">0</span>/5</p>
+                <p th:text="${review.comment}">No comment</p>
+                <p class="text-muted">By <span th:text="${review.user.fullName}">User</span> on <span th:text="${#temporals.format(review.createdAt, 'dd/MM/yyyy')}">Date</span></p>
+            </div>
+        </div>
+
+        <div th:if="${averageRating > 0}" class="mt-3">
+            <h3>Average Rating: <span th:text="${averageRating}">0.0</span>/5</h3>
+        </div>
+    </div>
+
+    <div th:replace="~{layout :: footer}"></div>
+</body>
+</html>

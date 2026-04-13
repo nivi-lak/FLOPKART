@@ -53,6 +53,11 @@ public class CartService implements ICartService {
         });
     }
 
+    @Override
+    public Cart getCartByUser(User user) {
+        return cartRepository.findByUser(user).orElse(null);
+    }
+
     // ─────────────────────────────────────────────────────────────────────
 
     @Override

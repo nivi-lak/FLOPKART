@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Write Review - Flopkart</title>
+</head>
+<body>
+    <div th:replace="~{layout :: header}"></div>
+
+    <div class="container">
+        <h1>Write a Review</h1>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 th:text="${product.name}">Product Name</h5>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/reviews/submit}" method="post" th:object="${reviewForm}">
+                    <input type="hidden" name="productId" th:value="${product.id}">
+                    <input type="hidden" name="orderId" th:value="${order.id}">
+
+                    <div class="mb-3">
+                        <label for="rating" class="form-label">Rating (1-5)</label>
+                        <select class="form-control" id="rating" name="rating" th:field="*{rating}" required>
+                            <option value="1">1 Star</option>
+                            <option value="2">2 Stars</option>
+                            <option value="3">3 Stars</option>
+                            <option value="4">4 Stars</option>
+                            <option value="5">5 Stars</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="comment" class="form-label">Comment</label>
+                        <textarea class="form-control" id="comment" name="comment" th:field="*{comment}" rows="4"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{layout :: footer}"></div>
+</body>
+</html>

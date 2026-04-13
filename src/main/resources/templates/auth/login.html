@@ -16,6 +16,8 @@
 
         <!-- Spring Security reads 'username' and 'password' field names by default -->
         <form th:action="@{/auth/login}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <input type="hidden" name="returnUrl" th:value="${param.returnUrl}" />
             <div class="mb-3">
                 <label class="form-label">Email</label>
                 <input type="email" name="username" class="form-control" required>
