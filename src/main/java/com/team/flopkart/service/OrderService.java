@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+
 
 /**
  * Service for Order operations.
@@ -46,7 +46,7 @@ public class OrderService {
         BigDecimal totalAmount = BigDecimal.ZERO;
         for (CartItem cartItem : cartItems) {
             totalAmount = totalAmount.add(
-                BigDecimal.valueOf(cartItem.getProduct().getPrice())
+                cartItem.getProduct().getPrice()
                     .multiply(BigDecimal.valueOf(cartItem.getQuantity()))
             );
         }
@@ -62,7 +62,7 @@ public class OrderService {
                 order,
                 cartItem.getProduct(),
                 cartItem.getQuantity(),
-                BigDecimal.valueOf(cartItem.getProduct().getPrice())
+                cartItem.getProduct().getPrice()
             );
             orderItem = orderItemRepository.save(orderItem);
             savedItems.add(orderItem);
@@ -101,6 +101,19 @@ public class OrderService {
      */
     public List<Order> getOrdersByUser(User user) {
         return orderRepository.findByUser(user);
+    }
+
+    public List<Order> getOrdersBySeller(Seller seller) {
+        List<OrderItem> orderItems = orderItemRepository.findByProductSeller(seller);
+
+        List<Order> orders = new ArrayList<>();
+        for (OrderItem item : orderItems) {
+            if (!orders.contains(item.getOrder())) {
+                orders.add(item.getOrder());
+            }
+        }
+
+        return orders;
     }
 
     /**

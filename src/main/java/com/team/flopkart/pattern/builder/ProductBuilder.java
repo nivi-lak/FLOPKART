@@ -1,8 +1,11 @@
 package com.team.flopkart.pattern.builder;
 
 import com.team.flopkart.model.Product;
+
+import java.math.BigDecimal;
+
 import com.team.flopkart.model.Category;
-import com.team.flopkart.model.User;
+import com.team.flopkart.model.Seller;
 
 /**
  * Builder pattern for Product construction.
@@ -21,7 +24,7 @@ public class ProductBuilder {
     private String brand;
     private String imageUrl;
     private Category category;
-    private User seller;
+    private Seller seller;
     private boolean active = true;
 
     public ProductBuilder name(String name) {
@@ -64,7 +67,7 @@ public class ProductBuilder {
         return this;
     }
 
-    public ProductBuilder seller(User seller) {
+    public ProductBuilder seller(Seller seller) {
         this.seller = seller;
         return this;
     }
@@ -78,7 +81,7 @@ public class ProductBuilder {
         Product product = new Product();
         product.setName(name);
         product.setDescription(description);
-        product.setPrice(price);
+        product.setPrice(BigDecimal.valueOf(price));
         product.setDiscountPercent(discountPercent);
         product.setStockQuantity(stockQuantity);
         product.setBrand(brand);

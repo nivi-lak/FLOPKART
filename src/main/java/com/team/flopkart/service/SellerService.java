@@ -1,91 +1,156 @@
 package com.team.flopkart.service;
 
-import com.team.flopkart.dto.SellerForm;
 import com.team.flopkart.model.Seller;
 import com.team.flopkart.model.User;
 import com.team.flopkart.repository.SellerRepository;
-import com.team.flopkart.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+ 
+import java.util.List;
+import java.util.Optional;
+ 
 /**
- * SellerService — Member 2 (Major use case: seller registration + profile).
- *
- * Design Principle: SRP — this service handles only seller profile operations.
- * Product CRUD is ProductService's concern; search is ProductSearchService's concern.
+ * MEMBER 2 - MAJOR USE CASE SERVICE
+ * 
+ * Service for seller registration, profile management, and verification.
+ * 
+ * DEMONSTRATES SRP:
+ * - This service handles ONLY seller-related business logic
+ * - Product management is NOT here (that's in ProductService - Member 1)
+ * - Product search is NOT here (that's in ProductSearchService - Member 2)
  */
 @Service
+@Transactional
 public class SellerService {
-
+    
     private final SellerRepository sellerRepository;
-    private final UserRepository userRepository;
-
-    /** Constructor injection — no @Autowired field injection. */
-    public SellerService(SellerRepository sellerRepository,
-                         UserRepository userRepository) {
+    
+    // Constructor injection for DIP compliance
+    public SellerService(SellerRepository sellerRepository) {
         this.sellerRepository = sellerRepository;
-        this.userRepository = userRepository;
     }
-
+    
     /**
-     * Registers a new Seller profile for an already-authenticated User.
-     * Throws if the user already has a seller profile or GST is duplicate.
+     * Register a new seller profile for a user with SELLER role
+     * This is called AFTER user registration when role = SELLER
      */
-    @Transactional
-    public Seller registerSeller(String userEmail, SellerForm form) {
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userEmail));
-
-        if (sellerRepository.existsByUser(user)) {
-            throw new IllegalStateException("Seller profile already exists for this account.");
+    public Seller registerSeller(Seller seller) {
+        // Validate user has SELLER role
+        if (seller.getUser() == null) {
+            throw new IllegalArgumentException("User must be associated with seller");
         }
-
-        if (form.getGstNumber() != null && !form.getGstNumber().isBlank()
-                && sellerRepository.existsByGstNumber(form.getGstNumber())) {
-            throw new IllegalStateException("A seller with this GST number is already registered.");
+        
+        // Check if seller already exists for this user
+        if (sellerRepository.existsByUser(seller.getUser())) {
+            throw new IllegalStateException("Seller profile already exists for this user");
         }
-
-        Seller seller = new Seller();
-        seller.setUser(user);
-        seller.setShopName(form.getShopName());
-        seller.setGstNumber(form.getGstNumber());
-        seller.setPhoneNumber(form.getPhoneNumber());
-        seller.setBankAccount(form.getBankAccount());
-        seller.setVerified(false);
-
+        
+        // Check GST uniqueness
+        if (sellerRepository.findByGstNumber(seller.getGstNumber()).isPresent()) {
+            throw new IllegalStateException("GST number already registered");
+        }
+        
+        // New sellers start unverified
+        seller.setIsVerified(false);
+        
         return sellerRepository.save(seller);
     }
-
+    
     /**
-     * Returns the Seller profile for the given authenticated user email.
-     * Returns null if no profile exists yet (used to redirect to registration).
+     * Update seller profile information
      */
-    public Seller findByEmail(String email) {
-        return sellerRepository.findByUser_Email(email).orElse(null);
+    public Seller updateSellerProfile(Long sellerId, Seller updatedInfo) {
+        Seller existing = sellerRepository.findById(sellerId)
+            .orElseThrow(() -> new IllegalArgumentException("Seller not found"));
+        
+        // Update allowed fields (not user or verification status)
+        existing.setShopName(updatedInfo.getShopName());
+        existing.setPhoneNumber(updatedInfo.getPhoneNumber());
+        existing.setBankAccount(updatedInfo.getBankAccount());
+        existing.setShopDescription(updatedInfo.getShopDescription());
+        existing.setShopLogoUrl(updatedInfo.getShopLogoUrl());
+        existing.setBusinessAddress(updatedInfo.getBusinessAddress());
+        
+        // GST number change requires admin verification
+        if (!existing.getGstNumber().equals(updatedInfo.getGstNumber())) {
+            if (sellerRepository.findByGstNumber(updatedInfo.getGstNumber()).isPresent()) {
+                throw new IllegalStateException("GST number already in use");
+            }
+            existing.setGstNumber(updatedInfo.getGstNumber());
+            existing.setIsVerified(false); // Re-verification needed
+        }
+        
+        return sellerRepository.save(existing);
     }
-
-    public Seller findById(Long id) {
-        return sellerRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Seller not found: " + id));
-    }
-
+    
     /**
-     * Updates an existing seller's profile fields.
+     * Get seller profile by user
      */
-    @Transactional
-    public Seller updateProfile(String userEmail, SellerForm form) {
-        Seller seller = sellerRepository.findByUser_Email(userEmail)
-                .orElseThrow(() -> new IllegalStateException("No seller profile found."));
-
-        seller.setShopName(form.getShopName());
-        seller.setPhoneNumber(form.getPhoneNumber());
-        seller.setBankAccount(form.getBankAccount());
-        // GST intentionally not editable after registration
-
-        return sellerRepository.save(seller);
+    public Optional<Seller> getSellerByUser(User user) {
+        return sellerRepository.findByUser(user);
     }
-
-    public boolean hasSellerProfile(String email) {
-        return sellerRepository.findByUser_Email(email).isPresent();
+    
+    /**
+     * Get seller profile by user ID
+     */
+    public Optional<Seller> getSellerByUserId(Long userId) {
+        return sellerRepository.findByUserId(userId);
+    }
+    
+    /**
+     * Get seller by ID
+     */
+    public Optional<Seller> getSellerById(Long sellerId) {
+        return sellerRepository.findById(sellerId);
+    }
+    
+    /**
+     * Verify a seller (admin function)
+     */
+    public void verifySeller(Long sellerId) {
+        Seller seller = sellerRepository.findById(sellerId)
+            .orElseThrow(() -> new IllegalArgumentException("Seller not found"));
+        
+        seller.verify();
+        sellerRepository.save(seller);
+    }
+    
+    /**
+     * Unverify a seller (admin function)
+     */
+    public void unverifySeller(Long sellerId) {
+        Seller seller = sellerRepository.findById(sellerId)
+            .orElseThrow(() -> new IllegalArgumentException("Seller not found"));
+        
+        seller.unverify();
+        sellerRepository.save(seller);
+    }
+    
+    /**
+     * Get all verified sellers
+     */
+    public List<Seller> getVerifiedSellers() {
+        return sellerRepository.findByIsVerifiedTrue();
+    }
+    
+    /**
+     * Get all pending verification sellers (admin)
+     */
+    public List<Seller> getPendingVerificationSellers() {
+        return sellerRepository.findByIsVerifiedFalse();
+    }
+    
+    /**
+     * Search sellers by shop name
+     */
+    public List<Seller> searchSellersByShopName(String shopName) {
+        return sellerRepository.findByShopNameContainingIgnoreCase(shopName);
+    }
+    
+    /**
+     * Check if user has seller profile
+     */
+    public boolean hasSellerProfile(User user) {
+        return sellerRepository.existsByUser(user);
     }
 }

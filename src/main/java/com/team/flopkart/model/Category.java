@@ -1,32 +1,37 @@
 package com.team.flopkart.model;
-
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-
+ 
 /**
- * Minor class for Member 1: Product Management.
- * PLACEHOLDER: This is a placeholder implementation for testing purposes.
- * Full implementation will be provided by Member 1.
+ * MEMBER 1 - MINOR CLASS
+ * Category entity for product classification
+ * (Included here for Member 2's ProductSearch filtering)
  */
 @Entity
 @Table(name = "categories")
-@Getter @Setter
+@Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
+    @NotBlank(message = "Category name is required")
+    @Size(min = 2, max = 100)
+    @Column(nullable = false, unique = true, length = 100)
     private String name;
+    
+    @Column(length = 500)
     private String description;
+    
+    @Column(length = 255)
     private String iconUrl;
-
-    // Constructor for testing
-    public Category(String name, String description) {
-        this.name = name;
-        this.description = description;
-    }
 }
+ 
+

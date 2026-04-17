@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Registration - Flopkart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            min-height: 100vh;
+            padding: 30px 0;
+        }
+        .signup-card {
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .section-divider {
+            border-top: 2px solid #e0e0e0;
+            margin: 30px 0;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card signup-card">
+                    <div class="card-body p-5">
+                        <!-- Header -->
+                        <div class="text-center mb-4">
+                            <i class="bi bi-shop text-success" style="font-size: 3.5rem;"></i>
+                            <h3 class="fw-bold mt-3">Register as Seller</h3>
+                            <p class="text-muted">Start selling on Flopkart and reach millions of customers</p>
+                        </div>
+
+                        <!-- Error Message -->
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <span th:text="${error}">Error message</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <!-- Registration Form -->
+                        <form th:action="@{/auth/seller/signup}" th:object="${seller}" method="post">
+                            
+                            <!-- Personal Information Section -->
+                            <h5 class="text-success mb-3">
+                                <i class="bi bi-person-circle"></i> Personal Information
+                            </h5>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="fullName" class="form-label">
+                                        Full Name <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="fullName" 
+                                           th:field="*{fullName}"
+                                           th:errorclass="is-invalid"
+                                           placeholder="Your full name"
+                                           required>
+                                    <div class="invalid-feedback" th:errors="*{fullName}"></div>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">
+                                        Email Address <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="email" 
+                                           class="form-control" 
+                                           id="email" 
+                                           th:field="*{email}"
+                                           th:errorclass="is-invalid"
+                                           placeholder="yourname@example.com"
+                                           required>
+                                    <div class="invalid-feedback" th:errors="*{email}"></div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="password" class="form-label">
+                                        Password <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="password" 
+                                           class="form-control" 
+                                           id="password" 
+                                           th:field="*{password}"
+                                           th:errorclass="is-invalid"
+                                           placeholder="Minimum 6 characters"
+                                           required>
+                                    <div class="invalid-feedback" th:errors="*{password}"></div>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="confirmPassword" class="form-label">
+                                        Confirm Password <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="password" 
+                                           class="form-control" 
+                                           id="confirmPassword" 
+                                           th:field="*{confirmPassword}"
+                                           th:errorclass="is-invalid"
+                                           placeholder="Re-enter password"
+                                           required>
+                                    <div class="invalid-feedback" th:errors="*{confirmPassword}"></div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">
+                                    Phone Number <span class="text-danger">*</span>
+                                </label>
+                                <input type="tel" 
+                                       class="form-control" 
+                                       id="phone" 
+                                       th:field="*{phone}"
+                                       th:errorclass="is-invalid"
+                                       placeholder="9876543210"
+                                       pattern="[6-9][0-9]{9}"
+                                       required>
+                                <div class="form-text">10 digits starting with 6-9</div>
+                                <div class="invalid-feedback" th:errors="*{phone}"></div>
+                            </div>
+
+                            <!-- Business Information Section -->
+                            <div class="section-divider">
+                                <h5 class="text-success mb-3">
+                                    <i class="bi bi-shop-window"></i> Business Information
+                                </h5>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="shopName" class="form-label">
+                                            Shop Name <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="shopName" 
+                                               th:field="*{shopName}"
+                                               th:errorclass="is-invalid"
+                                               placeholder="Your shop name"
+                                               required>
+                                        <div class="invalid-feedback" th:errors="*{shopName}"></div>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label for="gstNumber" class="form-label">
+                                            GST Number <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="gstNumber" 
+                                               th:field="*{gstNumber}"
+                                               th:errorclass="is-invalid"
+                                               placeholder="29ABCDE1234F1Z5"
+                                               pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}"
+                                               required>
+                                        <div class="form-text">15 characters (e.g., 29ABCDE1234F1Z5)</div>
+                                        <div class="invalid-feedback" th:errors="*{gstNumber}"></div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="bankAccount" class="form-label">
+                                        Bank Account Number <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="bankAccount" 
+                                           th:field="*{bankAccount}"
+                                           th:errorclass="is-invalid"
+                                           placeholder="For receiving payments"
+                                           required>
+                                    <div class="invalid-feedback" th:errors="*{bankAccount}"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="businessAddress" class="form-label">
+                                        Business Address <span class="text-muted">(Optional)</span>
+                                    </label>
+                                    <textarea class="form-control" 
+                                              id="businessAddress" 
+                                              th:field="*{businessAddress}"
+                                              rows="2"
+                                              placeholder="Your complete business address"></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="shopDescription" class="form-label">
+                                        Shop Description <span class="text-muted">(Optional)</span>
+                                    </label>
+                                    <textarea class="form-control" 
+                                              id="shopDescription" 
+                                              th:field="*{shopDescription}"
+                                              rows="3"
+                                              placeholder="Tell customers about your shop and products"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Info Box -->
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle-fill"></i>
+                                <strong>Important:</strong> Your seller account will be reviewed and verified by our team. 
+                                You can start adding products after registration, but they will be visible to customers only after verification.
+                            </div>
+
+                            <!-- Terms and Conditions -->
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="terms" required>
+                                <label class="form-check-label" for="terms">
+                                    I agree to the <a href="#" class="text-decoration-none">Seller Terms & Conditions</a>
+                                </label>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="bi bi-check-circle"></i> Register as Seller
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Divider -->
+                        <div class="text-center my-4">
+                            <span class="text-muted">or</span>
+                        </div>
+
+                        <!-- Already have account -->
+                        <div class="text-center">
+                            <p class="mb-0">Already registered as seller?</p>
+                            <a href="/auth/seller/login" class="btn btn-outline-success mt-2">
+                                <i class="bi bi-box-arrow-in-right"></i> Login to Seller Dashboard
+                            </a>
+                        </div>
+
+                        <!-- Customer Registration Link -->
+                        <div class="text-center mt-3">
+                            <p class="text-muted small">
+                                Just want to shop? 
+                                <a href="/auth/customer/signup" class="text-decoration-none">
+                                    <i class="bi bi-person"></i> Create Customer Account
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

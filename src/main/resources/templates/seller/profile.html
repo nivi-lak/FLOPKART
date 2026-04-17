@@ -1,164 +1,194 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Seller Profile — Flopkart</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f1f3f6; color: #212121; }
-
-        .navbar {
-            background: #2874f0; padding: 14px 24px;
-            display: flex; align-items: center; justify-content: space-between;
-        }
-        .navbar a { color: white; text-decoration: none; font-size: 22px; font-weight: 700; }
-        .navbar-right { display: flex; gap: 20px; align-items: center; }
-        .navbar-right a { color: white; font-size: 14px; text-decoration: none; }
-
-        .container { max-width: 720px; margin: 32px auto; padding: 0 16px; }
-
-        .card {
-            background: white; border-radius: 4px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.12); overflow: hidden;
-        }
-
-        .profile-header {
-            background: linear-gradient(135deg, #2874f0, #0050c8);
-            padding: 28px 32px; color: white;
-            display: flex; align-items: center; gap: 20px;
-        }
-        .avatar {
-            width: 64px; height: 64px; border-radius: 50%;
-            background: rgba(255,255,255,0.25);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 28px; font-weight: 700; flex-shrink: 0;
-        }
-        .profile-header h2 { font-size: 22px; }
-        .profile-header p { font-size: 13px; opacity: 0.8; margin-top: 4px; }
-        .badge-verified {
-            display: inline-block; background: #43a047; color: white;
-            font-size: 11px; padding: 2px 10px; border-radius: 12px;
-            font-weight: 600; margin-top: 6px;
-        }
-        .badge-pending {
-            display: inline-block; background: #ffa000; color: white;
-            font-size: 11px; padding: 2px 10px; border-radius: 12px;
-            font-weight: 600; margin-top: 6px;
-        }
-
-        .profile-body { padding: 28px 32px; }
-
-        .alert-success {
-            background: #e8f5e9; border-left: 4px solid #43a047;
-            padding: 12px 16px; border-radius: 3px; margin-bottom: 20px;
-            font-size: 14px; color: #256029;
-        }
-
-        .info-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
-            margin-bottom: 28px;
-        }
-        .info-item label {
-            font-size: 11px; font-weight: 600; color: #717171;
-            text-transform: uppercase; letter-spacing: 0.5px;
-        }
-        .info-item p { font-size: 15px; margin-top: 4px; }
-        .info-item p.empty { color: #bdbdbd; font-style: italic; }
-
-        .divider { height: 1px; background: #f0f0f0; margin: 24px 0; }
-
-        .btn-row { display: flex; gap: 12px; flex-wrap: wrap; }
-        .btn-edit {
-            padding: 10px 24px; background: #2874f0; color: white;
-            border: none; border-radius: 3px; font-size: 14px; font-weight: 600;
-            cursor: pointer; text-decoration: none;
-        }
-        .btn-edit:hover { background: #0050c8; }
-        .btn-products {
-            padding: 10px 24px; background: white; color: #2874f0;
-            border: 2px solid #2874f0; border-radius: 3px; font-size: 14px;
-            font-weight: 600; cursor: pointer; text-decoration: none;
-        }
-        .btn-products:hover { background: #e8f0fe; }
-
-        .joined-note { font-size: 12px; color: #9e9e9e; margin-top: 16px; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Profile - Flopkart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </head>
 <body>
-
-<nav class="navbar">
-    <a th:href="@{/}">Flopkart</a>
-    <div class="navbar-right">
-        <a th:href="@{/search}">Browse</a>
-        <a th:href="@{/seller/profile/edit}">Edit Profile</a>
-        <a th:href="@{/logout}">Logout</a>
-    </div>
-</nav>
-
-<div class="container">
-
-    <!-- Flash message -->
-    <div class="alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
-
-    <div class="card">
-
-        <div class="profile-header">
-            <div class="avatar" th:text="${#strings.substring(seller.shopName, 0, 1).toUpperCase()}">S</div>
-            <div>
-                <h2 th:text="${seller.shopName}">Shop Name</h2>
-                <p th:text="${seller.user.fullName}">Seller Name</p>
-                <p th:text="${seller.user.email}">email@example.com</p>
-                <span class="badge-verified" th:if="${seller.verified}">✓ Verified Seller</span>
-                <span class="badge-pending" th:unless="${seller.verified}">⏳ Verification Pending</span>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/seller/dashboard">
+                <i class="bi bi-shop"></i> Flopkart Seller
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/seller/dashboard">Dashboard</a>
+                <a class="nav-link active" href="/seller/profile">Profile</a>
+                <a class="btn btn-outline-light btn-sm ms-2" href="/logout">Logout</a>
             </div>
         </div>
+    </nav>
 
-        <div class="profile-body">
+    <div class="container mt-4">
+        <!-- Success Message -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i> <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
 
-            <div class="info-grid">
-                <div class="info-item">
-                    <label>GST Number</label>
-                    <p th:text="${seller.gstNumber != null} ? ${seller.gstNumber} : ''"
-                       th:classappend="${seller.gstNumber == null} ? 'empty' : ''">
-                        Not provided
-                    </p>
-                </div>
-                <div class="info-item">
-                    <label>Phone Number</label>
-                    <p th:text="${seller.phoneNumber != null} ? ${seller.phoneNumber} : ''"
-                       th:classappend="${seller.phoneNumber == null} ? 'empty' : ''">
-                        Not provided
-                    </p>
-                </div>
-                <div class="info-item">
-                    <label>Bank Account</label>
-                    <p th:text="${seller.bankAccount != null} ? ${seller.bankAccount} : ''"
-                       th:classappend="${seller.bankAccount == null} ? 'empty' : ''">
-                        Not provided
-                    </p>
-                </div>
-                <div class="info-item">
-                    <label>Member Since</label>
-                    <p th:text="${#temporals.format(seller.joinedAt, 'dd MMM yyyy')}">01 Jan 2025</p>
+        <!-- Error Message -->
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="row">
+            <!-- Left Column - Profile Display -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <img th:if="${seller.shopLogoUrl}" 
+                                 th:src="${seller.shopLogoUrl}" 
+                                 class="rounded-circle"
+                                 style="width: 150px; height: 150px; object-fit: cover;"
+                                 alt="Shop Logo">
+                            <div th:unless="${seller.shopLogoUrl}" 
+                                 class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center"
+                                 style="width: 150px; height: 150px;">
+                                <i class="bi bi-shop text-white" style="font-size: 4rem;"></i>
+                            </div>
+                        </div>
+                        <h4 th:text="${seller.shopName}">Shop Name</h4>
+                        <p class="text-muted" th:text="${user.email}">email@example.com</p>
+                        <div class="mt-3">
+                            <span th:if="${seller.isVerified}" class="badge bg-success fs-6">
+                                <i class="bi bi-patch-check-fill"></i> Verified Seller
+                            </span>
+                            <span th:unless="${seller.isVerified}" class="badge bg-warning fs-6">
+                                <i class="bi bi-clock"></i> Pending Verification
+                            </span>
+                        </div>
+                        <div class="mt-3">
+                            <p class="mb-1"><small class="text-muted">Member Since</small></p>
+                            <p th:text="${#temporals.format(seller.joinedAt, 'MMMM dd, yyyy')}">Date</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="divider"></div>
+            <!-- Right Column - Profile Details Form -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-person-circle"></i> Profile Information</h5>
+                        <div th:if="${!isEditMode}">
+                            <a href="/seller/profile/edit" class="btn btn-light btn-sm">
+                                <i class="bi bi-pencil"></i> Edit Profile
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- View Mode -->
+                        <div th:if="${!isEditMode}">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">Shop Name:</th>
+                                    <td th:text="${seller.shopName}"></td>
+                                </tr>
+                                <tr>
+                                    <th>GST Number:</th>
+                                    <td th:text="${seller.gstNumber}"></td>
+                                </tr>
+                                <tr>
+                                    <th>Phone Number:</th>
+                                    <td th:text="${seller.phoneNumber}"></td>
+                                </tr>
+                                <tr>
+                                    <th>Bank Account:</th>
+                                    <td th:text="${seller.bankAccount}"></td>
+                                </tr>
+                                <tr>
+                                    <th>Business Address:</th>
+                                    <td th:text="${seller.businessAddress ?: 'Not provided'}"></td>
+                                </tr>
+                                <tr>
+                                    <th>Shop Description:</th>
+                                    <td th:text="${seller.shopDescription ?: 'Not provided'}"></td>
+                                </tr>
+                                <tr>
+                                    <th>Shop Logo URL:</th>
+                                    <td>
+                                        <span th:if="${seller.shopLogoUrl}">
+                                            <a th:href="${seller.shopLogoUrl}" target="_blank">View Logo</a>
+                                        </span>
+                                        <span th:unless="${seller.shopLogoUrl}" class="text-muted">Not provided</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
 
-            <div class="btn-row">
-                <a th:href="@{/seller/profile/edit}" class="btn-edit">Edit Profile</a>
-                <a th:href="@{/products/my}" class="btn-products">My Products</a>
+                        <!-- Edit Mode -->
+                        <div th:if="${isEditMode}">
+                            <form th:action="@{/seller/profile/edit}" th:object="${seller}" method="post">
+                                <div class="mb-3">
+                                    <label for="shopName" class="form-label">Shop Name *</label>
+                                    <input type="text" class="form-control" id="shopName" 
+                                           th:field="*{shopName}" th:errorclass="is-invalid" required>
+                                    <div class="invalid-feedback" th:errors="*{shopName}"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="gstNumber" class="form-label">GST Number *</label>
+                                    <input type="text" class="form-control" id="gstNumber" 
+                                           th:field="*{gstNumber}" th:errorclass="is-invalid"
+                                           pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}" required>
+                                    <div class="form-text">Changing GST will require re-verification</div>
+                                    <div class="invalid-feedback" th:errors="*{gstNumber}"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="phoneNumber" class="form-label">Phone Number *</label>
+                                    <input type="tel" class="form-control" id="phoneNumber" 
+                                           th:field="*{phoneNumber}" th:errorclass="is-invalid"
+                                           pattern="[6-9][0-9]{9}" required>
+                                    <div class="invalid-feedback" th:errors="*{phoneNumber}"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="bankAccount" class="form-label">Bank Account *</label>
+                                    <input type="text" class="form-control" id="bankAccount" 
+                                           th:field="*{bankAccount}" th:errorclass="is-invalid" required>
+                                    <div class="invalid-feedback" th:errors="*{bankAccount}"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="businessAddress" class="form-label">Business Address</label>
+                                    <textarea class="form-control" id="businessAddress" 
+                                              th:field="*{businessAddress}" rows="2"></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="shopDescription" class="form-label">Shop Description</label>
+                                    <textarea class="form-control" id="shopDescription" 
+                                              th:field="*{shopDescription}" rows="3"></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="shopLogoUrl" class="form-label">Shop Logo URL</label>
+                                    <input type="url" class="form-control" id="shopLogoUrl" 
+                                           th:field="*{shopLogoUrl}">
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-save"></i> Save Changes
+                                    </button>
+                                    <a href="/seller/profile" class="btn btn-secondary">
+                                        <i class="bi bi-x"></i> Cancel
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <p class="joined-note">
-                Seller ID: #<span th:text="${seller.id}"></span>
-            </p>
-
         </div>
     </div>
-</div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
