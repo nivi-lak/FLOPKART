@@ -81,7 +81,35 @@
 
     <!-- ⭐ REVIEWS -->
     <div class="mt-5">
-        <h4>Customer Reviews</h4>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="mb-0">Customer Reviews</h4>
+            
+            <!-- 📝 Write Review Button -->
+            <div th:if="${loggedInUser != null}">
+                <div th:if="${!#lists.isEmpty(deliveredOrders)}" class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" id="reviewButton" 
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        ✍️ Write a Review
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="reviewButton">
+                        <li th:each="order : ${deliveredOrders}">
+                            <a class="dropdown-item" 
+                               th:href="@{/reviews/form/{productId}/{orderId}(productId=${product.id}, orderId=${order.id})}">
+                                Order #<span th:text="${order.id}"></span> 
+                                <small class="text-muted" th:text="${#temporals.format(order.updatedAt, 'dd MMM yyyy')}"></small>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div th:if="${#lists.isEmpty(deliveredOrders)}" class="text-muted">
+                    <small>No eligible orders to review</small>
+                </div>
+            </div>
+            
+            <div th:unless="${loggedInUser != null}">
+                <a href="/auth/login" class="btn btn-primary">✍️ Login to Review</a>
+            </div>
+        </div>
 
         <div th:if="${#lists.isEmpty(reviews)}" class="alert alert-info">
             No reviews yet. Be the first to review this product.

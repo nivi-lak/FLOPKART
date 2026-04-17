@@ -103,6 +103,15 @@ public class OrderService {
         return orderRepository.findByUser(user);
     }
 
+    /**
+     * Finds all delivered orders for a user (for review eligibility).
+     */
+    public List<Order> getDeliveredOrdersByUser(User user) {
+        return orderRepository.findByUser(user).stream()
+                .filter(order -> order.getStatus() == OrderStatus.DELIVERED)
+                .toList();
+    }
+
     public List<Order> getOrdersBySeller(Seller seller) {
         List<OrderItem> orderItems = orderItemRepository.findByProductSeller(seller);
 

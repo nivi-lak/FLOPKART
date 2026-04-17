@@ -2,9 +2,13 @@ package com.team.flopkart.controller;
 
 import com.team.flopkart.model.Category;
 import com.team.flopkart.model.Product;
+import com.team.flopkart.model.Order;
 import com.team.flopkart.pattern.decorator.*;
 import com.team.flopkart.service.ProductSearchService;
 import com.team.flopkart.service.ProductService;
+import com.team.flopkart.service.ReviewService;
+import com.team.flopkart.service.OrderService;
+import com.team.flopkart.repository.UserRepository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -45,9 +49,17 @@ public class ProductBrowseController {
     
     private final ProductSearchService productSearchService;
     private final ProductService productService;
-    public ProductBrowseController(ProductSearchService productSearchService , ProductService productService) {
+    private final ReviewService reviewService;
+    private final OrderService orderService;
+    private final UserRepository userRepository;
+    
+    public ProductBrowseController(ProductSearchService productSearchService , ProductService productService,
+                                    ReviewService reviewService, OrderService orderService, UserRepository userRepository) {
         this.productSearchService = productSearchService;
         this.productService = productService;
+        this.reviewService = reviewService;
+        this.orderService = orderService;
+        this.userRepository = userRepository;
     }
     
     /**
@@ -154,22 +166,34 @@ public class ProductBrowseController {
     @GetMapping("/{productId}")
     public String viewProductDetails(@PathVariable Long productId,
                                       @RequestParam(required = false) String couponCode,
+                                      java.security.Principal principal,
                                       Model model) {
         
-        // In a real app, this would come from ProductService (Member 1)
-        // For demo purposes, we'll show how to use the decorator pattern
         Product product = productService.getProductById(productId)
                     .orElseThrow(() -> new RuntimeException("Product not found"));
         System.out.println(product);
         model.addAttribute("product", product);
 
-        // Optional (to avoid errors)
-        model.addAttribute("reviews", new ArrayList<>());
-        model.addAttribute("averageRating", 0);
+        // Load reviews and average rating from database
+        model.addAttribute("reviews", reviewService.getReviewsByProduct(product));
+        model.addAttribute("averageRating", reviewService.getAverageRating(product));
         model.addAttribute("productId", productId);
         
-        // Decorator pattern will be demonstrated in the template
-        // by showing price calculation breakdown
+        // Pass logged-in user info for review eligibility
+        if (principal != null) {
+            var user = userRepository.findByEmail(principal.getName());
+            if (user.isPresent()) {
+                model.addAttribute("loggedInUser", user.get());
+                
+                // Get delivered orders that contain this product
+                List<Order> allDeliveredOrders = orderService.getDeliveredOrdersByUser(user.get());
+                List<Order> eligibleOrders = allDeliveredOrders.stream()
+                    .filter(order -> order.getItems().stream()
+                        .anyMatch(item -> item.getProduct().getId().equals(productId)))
+                    .toList();
+                model.addAttribute("deliveredOrders", eligibleOrders);
+            }
+        }
         
         return "products/detail";
     }
