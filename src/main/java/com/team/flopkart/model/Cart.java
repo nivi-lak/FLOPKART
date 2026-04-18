@@ -2,6 +2,8 @@
 package com.team.flopkart.model;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,11 +48,11 @@ public class Cart {
     public void touch() {
         this.updatedAt = LocalDateTime.now();
     }
-
-    public double getSubtotal() {
-        return items.stream()
-                .mapToDouble(item -> item.getProduct().getPrice() * item.getQuantity())
-                .sum();
+    public BigDecimal getSubtotal() {
+    return items.stream()
+            .map(item -> item.getProduct().getPrice()
+                    .multiply(BigDecimal.valueOf(item.getQuantity())))
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public boolean isEmpty() {

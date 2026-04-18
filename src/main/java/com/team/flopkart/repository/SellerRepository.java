@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
+import java.util.List;
+
 /**
  * SellerRepository — Member 2.
  *
@@ -15,10 +17,22 @@ import java.util.Optional;
 public interface SellerRepository extends JpaRepository<Seller, Long> {
 
     Optional<Seller> findByUser(User user);
+    
+    Optional<Seller> findByUserId(Long userId);
+ 
+    boolean existsByUser(User user);
+ 
+    Optional<Seller> findByGstNumber(String gstNumber);
+    
+ 
+    List<Seller> findByIsVerifiedTrue();
+  
+    List<Seller> findByIsVerifiedFalse();
+    
+  
+    List<Seller> findByShopNameContainingIgnoreCase(String shopName);
 
     Optional<Seller> findByUser_Email(String email);
-
-    boolean existsByUser(User user);
 
     boolean existsByGstNumber(String gstNumber);
 }

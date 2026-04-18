@@ -11,7 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.Optional;
+
 
 /**
  * Service for Order operations.
@@ -46,7 +48,7 @@ public class OrderService {
         BigDecimal totalAmount = BigDecimal.ZERO;
         for (CartItem cartItem : cartItems) {
             totalAmount = totalAmount.add(
-                BigDecimal.valueOf(cartItem.getProduct().getPrice())
+                cartItem.getProduct().getPrice()
                     .multiply(BigDecimal.valueOf(cartItem.getQuantity()))
             );
         }
@@ -62,7 +64,7 @@ public class OrderService {
                 order,
                 cartItem.getProduct(),
                 cartItem.getQuantity(),
-                BigDecimal.valueOf(cartItem.getProduct().getPrice())
+                cartItem.getProduct().getPrice()
             );
             orderItem = orderItemRepository.save(orderItem);
             savedItems.add(orderItem);
@@ -104,6 +106,46 @@ public class OrderService {
     }
 
     /**
+     * Finds all delivered orders for a user (for review eligibility).
+     */
+    public List<Order> getDeliveredOrdersByUser(User user) {
+        return orderRepository.findByUser(user).stream()
+                .filter(order -> order.getStatus() == OrderStatus.DELIVERED)
+                .toList();
+    }
+
+    public List<Order> getOrdersBySeller(Seller seller) {
+        // Get all orders
+        List<Order> allOrders = orderRepository.findAll();
+        
+        // Filter orders that contain at least one product from this seller
+        return allOrders.stream()
+            .filter(order -> order.getItems().stream()
+                .anyMatch(item -> item.getProduct().getSeller().getId().equals(seller.getId())))
+            .collect(Collectors.toList());
+    }
+    public List<Order> getOrdersBySellerAndStatus(Seller seller, OrderStatus status) {
+        return getOrdersBySeller(seller).stream()
+            .filter(order -> order.getStatus() == status)
+            .collect(Collectors.toList());
+    }
+    public Optional<Order> getOrderByIdOptional(Long orderId) {
+        return orderRepository.findById(orderId);
+    }
+    
+    /**
+     * Update order status
+     */
+    public Order updateOrderStatus(Long orderId, OrderStatus newStatus) {
+        Order order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+        
+        order.setStatus(newStatus);
+        return orderRepository.save(order);
+    }
+
+    /**
+     * 
      * Finds order by order number.
      */
     public Order getOrderByOrderNumber(String orderNumber) {

@@ -7,10 +7,13 @@ import com.team.flopkart.pattern.observer.NotificationObserver;
 import com.team.flopkart.pattern.observer.InventoryObserver;
 import com.team.flopkart.repository.ProductRepository;
 import com.team.flopkart.repository.CategoryRepository;
+
+import java.math.BigDecimal;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-
+import com.team.flopkart.repository.SellerRepository;
 /**
  * Seeds demo data on startup so the app is ready to demo immediately.
  * Each member should add their own seed data in their section below.
@@ -25,6 +28,7 @@ public class DataSeeder implements CommandLineRunner {
     private final InventoryObserver inventoryObserver;
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final SellerRepository sellerRepository;
 
     public DataSeeder(UserRepository userRepository,
                       PasswordEncoder passwordEncoder,
@@ -32,7 +36,8 @@ public class DataSeeder implements CommandLineRunner {
                       NotificationObserver notificationObserver,
                       InventoryObserver inventoryObserver,
                       ProductRepository productRepository,
-                      CategoryRepository categoryRepository) {
+                      CategoryRepository categoryRepository,
+                      SellerRepository sellerRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.orderEventPublisher = orderEventPublisher;
@@ -40,6 +45,7 @@ public class DataSeeder implements CommandLineRunner {
         this.inventoryObserver = inventoryObserver;
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.sellerRepository = sellerRepository;
     }
 
     @Override
@@ -79,6 +85,15 @@ public class DataSeeder implements CommandLineRunner {
         seller.setEnabled(true);
         userRepository.save(seller);
 
+        Seller sellerProfile = new Seller();
+        sellerProfile.setUser(seller);
+        sellerProfile.setShopName("Demo Shop");
+        sellerProfile.setGstNumber("29ABCDE1234F1Z5"); // valid format
+        sellerProfile.setPhoneNumber("9876543210");
+        sellerProfile.setBankAccount("1234567890");
+        sellerProfile.setBusinessAddress("Bangalore");
+
+        sellerRepository.save(sellerProfile);
         System.out.println(">> DataSeeder: users seeded.");
     }
 
@@ -86,18 +101,29 @@ public class DataSeeder implements CommandLineRunner {
         if (productRepository.count() > 0) return; // don't seed twice
 
         // Get the demo seller
-        User seller = userRepository.findByEmail("seller@flopkart.com").orElse(null);
-        if (seller == null) return;
+        User sellerUser = userRepository.findByEmail("seller@flopkart.com").orElse(null);
+        if (sellerUser == null) return;
 
+        Seller seller = sellerRepository.findByUser(sellerUser)
+        .orElse(null);
+        if (seller == null) return;
         // Create categories
-        Category electronics = new Category("Electronics", "Electronic devices and gadgets");
+        Category electronics = new Category();
+        electronics.setName("Electronics");
+        electronics.setDescription("Electronic devices and gadgets");
         electronics = categoryRepository.save(electronics);
 
-        Category clothing = new Category("Clothing", "Fashion and apparel");
+        Category clothing = new Category();
+        clothing.setName("Clothing");
+        clothing.setDescription("Fashion and apparel");
         clothing = categoryRepository.save(clothing);
 
         // Create products
-        Product phone = new Product("iPhone 15", 79999.00, 50);
+        Product phone = new Product();
+        phone.setName("iPhone 15");
+        phone.setPrice(BigDecimal.valueOf(79999.00));
+        phone.setStockQuantity(50);
+        phone.setImageUrl("https://imgs.search.brave.com/wr6kb_WiKIofQ5859rLsbEyLVEWwX6viwAM9ggDAJMc/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/YXBwbGUuY29tL25l/d3Nyb29tL2ltYWdl/cy8yMDIzLzA5L2Fw/cGxlLWRlYnV0cy1p/cGhvbmUtMTUtYW5k/LWlwaG9uZS0xNS1w/bHVzL2FydGljbGUv/QXBwbGUtaVBob25l/LTE1LWxpbmV1cC1o/ZXJvLWdlby0yMzA5/MTJfaW5saW5lLmpw/Zy5sYXJnZS5qcGc");
         phone.setDescription("Latest iPhone with advanced features");
         phone.setBrand("Apple");
         phone.setCategory(electronics);
@@ -105,7 +131,11 @@ public class DataSeeder implements CommandLineRunner {
         phone.setDiscountPercent(10);
         productRepository.save(phone);
 
-        Product laptop = new Product("MacBook Pro", 129999.00, 20);
+        Product laptop = new Product();
+        laptop.setName("MacBook Pro");
+        laptop.setPrice(BigDecimal.valueOf(129999.00));
+        laptop.setStockQuantity(20);
+        laptop.setImageUrl("https://imgs.search.brave.com/hyRaQLhxYdVhh703UFXao9vz2Ty1Ck_Ozmomg9_c7yE/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pcGxh/bmV0Lm9uZS9jZG4v/c2hvcC9maWxlcy9N/YWNCb29rX1Byb18x/NC1pbl9TcGFjZV9H/cmF5X1BEUF9JbWFn/ZV9Qb3NpdGlvbi0x/X19HQkVOXzYzMWRj/MzUzLTk2MDgtNGFh/ZC1hMjQwLTgxMjJl/NmQ4NDI1N18xNTAw/eC5qcGc_dj0xNjkx/MTQyOTIx");
         laptop.setDescription("Professional laptop for developers");
         laptop.setBrand("Apple");
         laptop.setCategory(electronics);
@@ -113,7 +143,11 @@ public class DataSeeder implements CommandLineRunner {
         laptop.setDiscountPercent(5);
         productRepository.save(laptop);
 
-        Product shirt = new Product("Cotton T-Shirt", 999.00, 100);
+        Product shirt = new Product();
+        shirt.setName("Cotton T-shirt");
+        shirt.setPrice(BigDecimal.valueOf(999.0));
+        shirt.setStockQuantity(100);
+        shirt.setImageUrl("https://imgs.search.brave.com/ir2KlJlEUDro3eRUv6vHWyAlG2j_TQiHjdpQq6eramI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tLm1l/ZGlhLWFtYXpvbi5j/b20vaW1hZ2VzL0kv/NDFLdVVaZ0o3WEwu/anBn");
         shirt.setDescription("Comfortable cotton t-shirt");
         shirt.setBrand("Generic");
         shirt.setCategory(clothing);

@@ -1,51 +1,176 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flopkart - Online Shopping</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="/">Flop<span class="text-warning">kart</span></a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="/products">Products</a>
-                <a class="nav-link" href="/cart">🛒 Cart</a>
-                <a class="nav-link" href="/orders/history">📦 Orders</a>
-                <a class="nav-link" href="/orders/track">Track Order</a>
-                <a class="nav-link" href="/auth/login">Login</a>
-                <a class="nav-link" href="/auth/register">Register</a>
-            </div>
-        </div>
-    </nav>
 
-    <div class="container mt-5">
-        <div class="row">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom Styling -->
+    <style>
+        html, body {
+            height: 100%;
+        }
+
+        body {
+        display: flex;
+        flex-direction: column;
+        }
+
+        .container {
+        flex: 1;
+        }
+        body {
+            background-color: #f5f7fa;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #0d6efd, #6610f2);
+            color: white;
+            padding: 60px 40px;
+            border-radius: 12px;
+        }
+
+        .hero h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+        }
+
+        .card-custom {
+            border: none;
+            border-radius: 12px;
+            transition: 0.3s;
+        }
+
+        .card-custom:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            border-radius: 8px;
+            padding: 10px 20px;
+        }
+
+        footer {
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            Flop<span class="text-warning">kart</span>
+        </a>
+
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link text-white" href="/products">Products</a>
+            <a class="nav-link text-white" href="/cart">🛒 Cart</a>
+            <a class="nav-link text-white" href="/orders/history">📦 Orders</a>
+            <a class="nav-link text-white" href="/orders/track">Track</a>
+            <a class="nav-link text-white"
+       th:href="@{/auth/login}"
+       sec:authorize="isAnonymous()">
+       Login
+    </a>
+
+    <!-- Show when logged in -->
+    <li class="nav-item" sec:authorize="isAuthenticated()">
+                <form th:action="@{/auth/logout}" method="post" style="display:inline;">
+                    <input type="hidden"
+                        th:name="${_csrf.parameterName}"
+                        th:value="${_csrf.token}" />
+                    <button type="submit"
+                            class="nav-link btn btn-link text-white"
+                            style="text-decoration:none;">
+                        Logout
+                    </button>
+                </form>
+            </li>
+        </div>
+    </div>
+</nav>
+
+<!-- MAIN -->
+<div class="container mt-5">
+
+    <!-- HERO SECTION -->
+    <div class="hero mb-5">
+        <div class="row align-items-center">
             <div class="col-md-8">
                 <h1>Welcome to Flopkart</h1>
-                <p class="lead">Your one-stop shop for all your needs!</p>
-                <a href="/products" class="btn btn-primary btn-lg">Shop Now</a>
+                <p>Your one-stop shop for everything you need.</p>
+                <a href="/products" class="btn btn-light btn-lg mt-3">Shop Now</a>
             </div>
-            <div class="col-md-4">
-                <h3>Quick Links</h3>
-                <ul class="list-group">
-                    <li class="list-group-item"><a href="/products">Browse Products</a></li>
-                    <li class="list-group-item"><a href="/orders/history">My Orders</a></li>
-                    <li class="list-group-item"><a href="/orders/track">Track Order</a></li>
-                    <li class="list-group-item"><a href="/cart">Shopping Cart</a></li>
-                </ul>
+            <div class="col-md-4 text-center">
+                <img src="https://cdn-icons-png.flaticon.com/512/263/263142.png" width="120">
             </div>
         </div>
     </div>
 
-    <footer class="bg-dark text-light mt-5 py-4">
-        <div class="container text-center">
-            <p>&copy; 2024 Flopkart - OOAD Mini Project</p>
-        </div>
-    </footer>
+    <!-- QUICK LINKS -->
+    <h3 class="mb-3">Quick Access</h3>
+    <div class="row g-4">
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <div class="col-md-3">
+            <div class="card card-custom p-3 text-center">
+                <h5>🛍 Products</h5>
+                <p>Browse all items</p>
+                <a href="/products" class="btn btn-outline-primary">Explore</a>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card card-custom p-3 text-center">
+                <h5>📦 Orders</h5>
+                <p>Your order history</p>
+                <a href="/orders/history" class="btn btn-outline-primary">View</a>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card card-custom p-3 text-center">
+                <h5>🚚 Track</h5>
+                <p>Track your delivery</p>
+                <a href="/orders/track" class="btn btn-outline-primary">Track</a>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card card-custom p-3 text-center">
+                <h5>🛒 Cart</h5>
+                <p>Check your items</p>
+                <a href="/cart" class="btn btn-outline-primary">Open</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="bg-dark text-light mt-5 py-4">
+    <div class="container text-center">
+        <p class="mb-1">&copy; 2026 Flopkart</p>
+        <small>Built with ❤️ for OOAD Project</small>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

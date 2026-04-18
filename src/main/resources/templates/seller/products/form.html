@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${isEdit ? 'Edit Product' : 'Add Product'} + ' - Flopkart Seller'">Product Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/seller/dashboard">
+                <i class="bi bi-shop"></i> Flopkart Seller
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/seller/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/seller/products">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/seller/profile">Profile</a>
+                    </li>
+                </ul>
+                <div class="navbar-text text-white me-3">
+                    <i class="bi bi-shop"></i> <span th:text="${seller.shopName}">Shop Name</span>
+                </div>
+                <a href="/auth/logout" class="btn btn-outline-light btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Header -->
+                <div class="d-flex align-items-center mb-4">
+                    <a href="/seller/products" class="btn btn-outline-secondary me-3">
+                        <i class="bi bi-arrow-left"></i> Back to Products
+                    </a>
+                    <div>
+                        <h2 th:text="${isEdit ? 'Edit Product' : 'Add New Product'}">Product Form</h2>
+                        <p class="text-muted mb-0" th:text="${isEdit ? 'Update product details' : 'Fill in the product information'}"></p>
+                    </div>
+                </div>
+
+                <!-- Warning Message -->
+                <div th:if="${warning}" class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span th:text="${warning}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Error Message -->
+                <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span th:text="${errorMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Product Form -->
+                <div class="card shadow-sm">
+                    <div class="card-body p-4">
+                        <form th:action="${isEdit ? '/seller/products/edit/' + productForm.id : '/seller/products/add'}" 
+                              th:object="${productForm}" 
+                              method="post">
+
+                            <!-- Product Name -->
+                            <div class="mb-3">
+                                <label for="name" class="form-label fw-bold">
+                                    <i class="bi bi-tag"></i> Product Name <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" 
+                                       class="form-control form-control-lg" 
+                                       id="name" 
+                                       th:field="*{name}"
+                                       th:errorclass="is-invalid"
+                                       placeholder="e.g., Wireless Bluetooth Headphones"
+                                       required>
+                                <div class="invalid-feedback" th:errors="*{name}"></div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="mb-3">
+                                <label for="description" class="form-label fw-bold">
+                                    <i class="bi bi-card-text"></i> Description
+                                </label>
+                                <textarea class="form-control" 
+                                          id="description" 
+                                          th:field="*{description}"
+                                          rows="4"
+                                          placeholder="Describe your product features, specifications, and benefits..."></textarea>
+                                <div class="form-text">Help customers understand what makes your product special</div>
+                            </div>
+
+                            <!-- Price & Discount Row -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="price" class="form-label fw-bold">
+                                        <i class="bi bi-currency-rupee"></i> Price <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">₹</span>
+                                        <input type="number" 
+                                               class="form-control" 
+                                               id="price" 
+                                               th:field="*{price}"
+                                               th:errorclass="is-invalid"
+                                               step="0.01"
+                                               min="0.01"
+                                               placeholder="0.00"
+                                               required>
+                                        <div class="invalid-feedback" th:errors="*{price}"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="discountPercent" class="form-label fw-bold">
+                                        <i class="bi bi-percent"></i> Discount %
+                                    </label>
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="discountPercent" 
+                                           th:field="*{discountPercent}"
+                                           th:errorclass="is-invalid"
+                                           min="0"
+                                           max="100"
+                                           placeholder="0">
+                                    <div class="form-text">Discount percentage (0-100)</div>
+                                    <div class="invalid-feedback" th:errors="*{discountPercent}"></div>
+                                </div>
+                            </div>
+
+                            <!-- Stock Quantity & Brand Row -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="stockQuantity" class="form-label fw-bold">
+                                        <i class="bi bi-box-seam"></i> Stock Quantity <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="stockQuantity" 
+                                           th:field="*{stockQuantity}"
+                                           th:errorclass="is-invalid"
+                                           min="0"
+                                           placeholder="0"
+                                           required>
+                                    <div class="form-text">Available units in stock</div>
+                                    <div class="invalid-feedback" th:errors="*{stockQuantity}"></div>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="brand" class="form-label fw-bold">
+                                        <i class="bi bi-award"></i> Brand
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="brand" 
+                                           th:field="*{brand}"
+                                           placeholder="e.g., Samsung, Apple, Nike">
+                                </div>
+                            </div>
+
+                            <!-- Category -->
+                            <div class="mb-3">
+                                <label for="categoryId" class="form-label fw-bold">
+                                    <i class="bi bi-grid"></i> Category <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" 
+                                        id="categoryId" 
+                                        th:field="*{categoryId}"
+                                        th:errorclass="is-invalid"
+                                        required>
+                                    <option value="">-- Select Category --</option>
+                                    <option th:each="category : ${categories}" 
+                                            th:value="${category.id}" 
+                                            th:text="${category.name}">Category</option>
+                                </select>
+                                <div class="invalid-feedback" th:errors="*{categoryId}"></div>
+                            </div>
+
+                            <!-- Image URL -->
+                            <div class="mb-3">
+                                <label for="imageUrl" class="form-label fw-bold">
+                                    <i class="bi bi-image"></i> Product Image URL
+                                </label>
+                                <input type="url" 
+                                       class="form-control" 
+                                       id="imageUrl" 
+                                       th:field="*{imageUrl}"
+                                       placeholder="https://example.com/image.jpg">
+                                <div class="form-text">Enter the URL of your product image</div>
+                            </div>
+
+                            <!-- Image Preview -->
+                            <div th:if="${productForm.imageUrl}" class="mb-3">
+                                <label class="form-label fw-bold">Preview</label>
+                                <div>
+                                    <img th:src="${productForm.imageUrl}" 
+                                         class="img-thumbnail" 
+                                         style="max-width: 200px; max-height: 200px;"
+                                         alt="Product preview">
+                                </div>
+                            </div>
+
+                            <!-- Active Status -->
+                            <div class="mb-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" 
+                                           type="checkbox" 
+                                           id="active" 
+                                           th:field="*{active}">
+                                    <label class="form-check-label fw-bold" for="active">
+                                        <i class="bi bi-eye"></i> Active (Visible to customers)
+                                    </label>
+                                </div>
+                                <small class="text-muted">
+                                    Uncheck to hide this product from customers temporarily
+                                </small>
+                            </div>
+
+                            <!-- Price Summary (if editing) -->
+                            <div th:if="${isEdit}" class="alert alert-info">
+                                <h6 class="alert-heading">Price Summary</h6>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <strong>Original Price:</strong><br>
+                                        ₹<span th:text="${productForm.price}">0.00</span>
+                                    </div>
+                                    <div class="col-md-4" th:if="${productForm.discountPercent > 0}">
+                                        <strong>Discount:</strong><br>
+                                        <span th:text="${productForm.discountPercent}">0</span>% OFF
+                                    </div>
+                                    <div class="col-md-4" th:if="${productForm.discountPercent > 0}">
+                                        <strong>Final Price:</strong><br>
+                                        <span class="text-success fs-5">
+                                            ₹<span th:text="${productForm.price * (100 - productForm.discountPercent) / 100}">0.00</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Submit Buttons -->
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="/seller/products" class="btn btn-outline-secondary">
+                                    <i class="bi bi-x-circle"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i th:class="${isEdit ? 'bi bi-save' : 'bi bi-plus-circle'}"></i>
+                                    <span th:text="${isEdit ? 'Update Product' : 'Add Product'}">Submit</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Help Text -->
+                <div class="card mt-3 bg-light">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <i class="bi bi-lightbulb"></i> Tips for Better Product Listings
+                        </h6>
+                        <ul class="mb-0 small">
+                            <li>Use clear, descriptive product names with key features</li>
+                            <li>Write detailed descriptions highlighting benefits and specifications</li>
+                            <li>Use high-quality product images (recommended: 800x800px or higher)</li>
+                            <li>Select the most appropriate category for better discoverability</li>
+                            <li>Keep stock quantities up to date to avoid overselling</li>
+                            <li>Competitive pricing with attractive discounts can boost sales</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Image Preview Script -->
+    <script>
+        document.getElementById('imageUrl').addEventListener('blur', function() {
+            var url = this.value;
+            var preview = document.querySelector('img[alt="Product preview"]');
+            if (url && preview) {
+                preview.src = url;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details - Flopkart Seller</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        .product-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #dee2e6;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -25px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #6c757d;
+        }
+        .timeline-item.active::before {
+            background: #198754;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/seller/dashboard">
+                <i class="bi bi-shop"></i> Flopkart Seller
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/seller/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/seller/products">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/seller/orders">Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/seller/profile">Profile</a>
+                    </li>
+                </ul>
+                <div class="navbar-text text-white me-3">
+                    <i class="bi bi-shop"></i> <span th:text="${seller.shopName}">Shop Name</span>
+                </div>
+                <a href="/auth/logout" class="btn btn-outline-light btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Back Button & Header -->
+        <div class="d-flex align-items-center mb-4">
+            <a href="/seller/orders" class="btn btn-outline-secondary me-3">
+                <i class="bi bi-arrow-left"></i> Back to Orders
+            </a>
+            <div>
+                <h2 class="mb-0">
+                    <i class="bi bi-receipt"></i> Order #<span th:text="${order.orderNumber}">ORD-001</span>
+                </h2>
+                <small class="text-muted">
+                    Placed on <span th:text="${#temporals.format(order.placedAt, 'dd MMMM yyyy, hh:mm a')}">Date</span>
+                </small>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i>
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Error Message -->
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="row">
+            <!-- Left Column - Order Details -->
+            <div class="col-md-8">
+                <!-- Order Items -->
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="bi bi-cart"></i> Order Items</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="item : ${order.items}">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img th:if="${item.product.imageUrl}" 
+                                                     th:src="${item.product.imageUrl}" 
+                                                     class="product-image me-3"
+                                                     th:alt="${item.product.name}">
+                                                <div th:unless="${item.product.imageUrl}" 
+                                                     class="product-image bg-light d-flex align-items-center justify-content-center me-3">
+                                                    <i class="bi bi-image text-muted"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold" th:text="${item.product.name}">Product Name</div>
+                                                    <small class="text-muted" th:if="${item.product.brand}" th:text="${item.product.brand}">Brand</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>₹<span th:text="${#numbers.formatDecimal(item.priceAtPurchase, 1, 2)}">0.00</span></td>
+                                        <td><span th:text="${item.quantity}">1</span></td>
+                                        <td class="fw-bold">
+                                            ₹<span th:text="${#numbers.formatDecimal(item.priceAtPurchase * item.quantity, 1, 2)}">0.00</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3" class="text-end fw-bold">Total Amount:</td>
+                                        <td class="fw-bold text-success fs-5">
+                                            ₹<span th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)}">0.00</span>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shipping Address -->
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="bi bi-geo-alt"></i> Shipping Address</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-1" th:text="${order.shippingAddress}">Address Line 1</p>
+                        <p class="mb-1" th:text="${order.shippingCity}">City</p>
+                        <p class="mb-0">PIN: <span th:text="${order.shippingPincode}">000000</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Order Status & Actions -->
+            <div class="col-md-4">
+                <!-- Current Status -->
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0"><i class="bi bi-info-circle"></i> Order Status</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <span th:if="${order.status.name() == 'PENDING'}" 
+                                  class="badge bg-warning fs-5 p-3">
+                                <i class="bi bi-clock"></i> PENDING
+                            </span>
+                            <span th:if="${order.status.name() == 'CONFIRMED'}" 
+                                  class="badge bg-info fs-5 p-3">
+                                <i class="bi bi-check-circle"></i> CONFIRMED
+                            </span>
+                            <span th:if="${order.status.name() == 'SHIPPED'}" 
+                                  class="badge bg-primary fs-5 p-3">
+                                <i class="bi bi-truck"></i> SHIPPED
+                            </span>
+                            <span th:if="${order.status.name() == 'DELIVERED'}" 
+                                  class="badge bg-success fs-5 p-3">
+                                <i class="bi bi-check-all"></i> DELIVERED
+                            </span>
+                            <span th:if="${order.status.name() == 'CANCELLED'}" 
+                                  class="badge bg-danger fs-5 p-3">
+                                <i class="bi bi-x-circle"></i> CANCELLED
+                            </span>
+                        </div>
+
+                        <!-- Update Status Form -->
+                        <div th:if="${order.status.name() != 'DELIVERED' && order.status.name() != 'CANCELLED'}">
+                            <hr>
+                            <h6>Update Status</h6>
+                            <form th:action="@{/seller/orders/{id}/update-status(id=${order.id})}" method="post">
+                                <select name="status" class="form-select mb-3" required>
+                                    <option value="">-- Select New Status --</option>
+                                    <option value="PENDING" 
+                                            th:selected="${order.status.name() == 'PENDING'}"
+                                            th:disabled="${order.status.name() == 'PENDING'}">
+                                        Pending
+                                    </option>
+                                    <option value="CONFIRMED"
+                                            th:selected="${order.status.name() == 'CONFIRMED'}"
+                                            th:disabled="${order.status.name() == 'CONFIRMED'}">
+                                        Confirmed
+                                    </option>
+                                    <option value="SHIPPED"
+                                            th:selected="${order.status.name() == 'SHIPPED'}"
+                                            th:disabled="${order.status.name() == 'SHIPPED'}">
+                                        Shipped
+                                    </option>
+                                    <option value="DELIVERED"
+                                            th:selected="${order.status.name() == 'DELIVERED'}">
+                                        Delivered
+                                    </option>
+                                    <option value="CANCELLED"
+                                            th:selected="${order.status.name() == 'CANCELLED'}">
+                                        Cancelled
+                                    </option>
+                                </select>
+                                <button type="submit" class="btn btn-success w-100">
+                                    <i class="bi bi-check-circle"></i> Update Status
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Timeline -->
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="bi bi-clock-history"></i> Order Timeline</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline">
+                            <div class="timeline-item active">
+                                <strong>Order Placed</strong><br>
+                                <small class="text-muted">
+                                    <span th:text="${#temporals.format(order.placedAt, 'dd MMM, hh:mm a')}">Date</span>
+                                </small>
+                            </div>
+
+                            <div class="timeline-item"
+                                 th:classappend="${order.status.name() == 'CONFIRMED' || order.status.name() == 'SHIPPED' || order.status.name() == 'DELIVERED' ? 'active' : ''}">
+                                <strong>Confirmed</strong><br>
+                                <small class="text-muted" th:if="${order.status.name() == 'CONFIRMED' || order.status.name() == 'SHIPPED' || order.status.name() == 'DELIVERED'}">
+                                    <span th:text="${#temporals.format(order.updatedAt, 'dd MMM, hh:mm a')}">Date</span>
+                                </small>
+                                <small class="text-muted" th:unless="${order.status.name() == 'CONFIRMED' || order.status.name() == 'SHIPPED' || order.status.name() == 'DELIVERED'}">
+                                    Pending
+                                </small>
+                            </div>
+
+                            <div class="timeline-item"
+                                 th:classappend="${order.status.name() == 'SHIPPED' || order.status.name() == 'DELIVERED' ? 'active' : ''}">
+                                <strong>Shipped</strong><br>
+                                <small class="text-muted" th:if="${order.status.name() == 'SHIPPED' || order.status.name() == 'DELIVERED'}">
+                                    <span th:text="${#temporals.format(order.updatedAt, 'dd MMM, hh:mm a')}">Date</span>
+                                </small>
+                                <small class="text-muted" th:unless="${order.status.name() == 'SHIPPED' || order.status.name() == 'DELIVERED'}">
+                                    Pending
+                                </small>
+                            </div>
+
+                            <div class="timeline-item"
+                                 th:classappend="${order.status.name() == 'DELIVERED' ? 'active' : ''}">
+                                <strong>Delivered</strong><br>
+                                <small class="text-muted" th:if="${order.status.name() == 'DELIVERED'}">
+                                    <span th:text="${#temporals.format(order.updatedAt, 'dd MMM, hh:mm a')}">Date</span>
+                                </small>
+                                <small class="text-muted" th:unless="${order.status.name() == 'DELIVERED'}">
+                                    Pending
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer Info -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="bi bi-person"></i> Customer Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-1"><strong>Name:</strong> <span th:text="${order.user.fullName}">Customer Name</span></p>
+                        <p class="mb-1"><strong>Email:</strong> <span th:text="${order.user.email}">email@example.com</span></p>
+                        <p class="mb-0" th:if="${order.user.phone}">
+                            <strong>Phone:</strong> <span th:text="${order.user.phone}">Phone</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

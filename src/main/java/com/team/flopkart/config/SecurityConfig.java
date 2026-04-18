@@ -21,36 +21,71 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
+ 
     private final UserRepository userRepository;
-
+ 
     public SecurityConfig(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-
+ 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
                 // Public pages
                 .requestMatchers(
-                    "/", "/products", "/products/**",
-                    "/search", "/auth/**",
+                    "/", 
+                    "/products", "/products/**",
+                    "/search", "/search/**",
+                    "/auth/**",  // All auth pages public
                     "/h2-console/**",
-                    "/css/**", "/js/**", "/images/**"
+                    "/css/**", "/js/**", "/images/**", "/error"
                 ).permitAll()
+                
                 // Seller-only pages
                 .requestMatchers("/seller/**").hasRole("SELLER")
+                
                 // Admin-only pages
                 .requestMatchers("/admin/**").hasRole("ADMIN")
+                
+                // Customer pages (cart, orders, reviews)
+                .requestMatchers("/cart/**", "/orders/**", "/checkout/**", "/reviews/**")
+                    .hasAnyRole("CUSTOMER", "SELLER", "ADMIN")
+                
                 // Everything else needs login
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
-                .loginPage("/auth/login")
-                .loginProcessingUrl("/auth/login")
-                .defaultSuccessUrl("/", false)  // Changed to false to allow redirect to original URL
-                .failureUrl("/auth/login?error=true")
+                .loginPage("/auth/login")  // Default login page (shows choice)
+                .loginProcessingUrl("/auth/login-process")  // Process login here
+                .successHandler((request, response, authentication) -> {
+                    // Redirect based on role after successful login
+                    String role = authentication.getAuthorities().iterator().next().getAuthority();
+                    
+                    if ("ROLE_SELLER".equals(role)) {
+                        response.sendRedirect("/seller/dashboard");
+                    } else if ("ROLE_ADMIN".equals(role)) {
+                        response.sendRedirect("/admin/dashboard");
+                    } else {
+                        // CUSTOMER or default
+                        response.sendRedirect("/");
+                    }
+                })
+                .failureHandler((request, response, exception) -> {
+                    // Redirect back to appropriate login page with error
+                    String referer = request.getHeader("Referer");
+                    String redirectUrl = "/auth/login?error=true";
+                    
+                    if (referer != null) {
+                        if (referer.contains("/seller/login")) {
+                            redirectUrl = "/auth/seller/login?error=true";
+                        } else if (referer.contains("/customer/login")) {
+                            redirectUrl = "/auth/customer/login?error=true";
+                        }
+                    }
+                    
+                    response.sendRedirect(redirectUrl);
+                })
                 .permitAll()
             )
             .logout(logout -> logout
@@ -65,10 +100,10 @@ public class SecurityConfig {
             .headers(headers -> headers
                 .frameOptions(frame -> frame.sameOrigin())
             );
-
+ 
         return http.build();
     }
-
+ 
     /**
      * Loads user from DB by email for Spring Security authentication.
      */
@@ -78,11 +113,13 @@ public class SecurityConfig {
             .map(user -> new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
+                user.getEnabled(),
+                true, true, true,
                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
             ))
             .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
     }
-
+ 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
