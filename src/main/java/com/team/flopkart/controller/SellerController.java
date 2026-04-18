@@ -4,8 +4,10 @@ import com.team.flopkart.dto.ProductForm;
 import com.team.flopkart.model.Product;
 import com.team.flopkart.model.Seller;
 import com.team.flopkart.model.Category;
+import com.team.flopkart.model.OrderStatus;
 import com.team.flopkart.model.User;
 import com.team.flopkart.model.UserRole;
+import com.team.flopkart.model.Order;
 import com.team.flopkart.service.OrderService;
 import com.team.flopkart.service.ProductService;
 import com.team.flopkart.service.SellerService;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  
 import java.util.Optional;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -76,16 +79,24 @@ public class SellerController {
         }
         
         Seller seller = sellerOpt.get();
-        model.addAttribute("seller", seller);
-        model.addAttribute("user", user);
-        List<Product> products = productService.getProductsBySeller(seller);
+        List<Order> orders = orderService.getOrdersBySeller(seller);
+
+        long totalOrders = orders.size();
+
+                List<Product> products = productService.getProductsBySeller(seller);
         long totalProducts = products.size();
         long activeProducts = products.stream()
                                   .filter(Product::getActive)
                                   .count();
+        BigDecimal totalRevenue = orders.stream()
+            .filter(order -> order.getStatus() == OrderStatus.DELIVERED)
+            .map(Order::getTotalAmount)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        model.addAttribute("seller", seller);
+        model.addAttribute("user", user);
         model.addAttribute("totalProducts", totalProducts);
         model.addAttribute("activeProducts", activeProducts);
-        long totalOrders = orderService.getOrdersBySeller(seller).size();
+        model.addAttribute("totalRevenue", totalRevenue);
         model.addAttribute("totalOrders", totalOrders);
         return "seller/dashboard";
     }
@@ -270,10 +281,10 @@ public class SellerController {
             .orElseThrow(() -> new IllegalStateException("Seller profile not found"));
         
         // Check if seller is verified
-        if (!seller.getIsVerified()) {
-            model.addAttribute("warning", "Your seller account is pending verification. " +
-                "You can add products, but they won't be visible to customers until you're verified.");
-        }
+        // if (!seller.getIsVerified()) {
+        //     model.addAttribute("warning", "Your seller account is pending verification. " +
+        //         "You can add products, but they won't be visible to customers until you're verified.");
+        // }
         
         ProductForm productForm = new ProductForm();
         List<Category> categories = productService.getAllCategories();
@@ -502,4 +513,113 @@ public class SellerController {
         
         return "redirect:/seller/products";
     }
+
+    @GetMapping("/orders")
+public String listOrders(@AuthenticationPrincipal UserDetails userDetails, 
+                         @RequestParam(required = false) String status,
+                         Model model) {
+    User user = userService.findByEmail(userDetails.getUsername())
+        .orElseThrow(() -> new IllegalStateException("User not found"));
+    
+    Seller seller = sellerService.getSellerByUser(user)
+        .orElseThrow(() -> new IllegalStateException("Seller profile not found"));
+    
+    List<Order> orders;
+    if (status != null && !status.isEmpty()) {
+        // Filter by status
+        OrderStatus orderStatus = OrderStatus.valueOf(status);
+        orders = orderService.getOrdersBySellerAndStatus(seller, orderStatus);
+    } else {
+        // Get all orders
+        orders = orderService.getOrdersBySeller(seller);
+    }
+    
+    // Get order statistics
+    long pendingOrders = orderService.getOrdersBySellerAndStatus(seller, OrderStatus.PENDING).size();
+    long confirmedOrders = orderService.getOrdersBySellerAndStatus(seller, OrderStatus.CONFIRMED).size();
+    long shippedOrders = orderService.getOrdersBySellerAndStatus(seller, OrderStatus.SHIPPED).size();
+    long deliveredOrders = orderService.getOrdersBySellerAndStatus(seller, OrderStatus.DELIVERED).size();
+    
+    model.addAttribute("seller", seller);
+    model.addAttribute("user", user);
+    model.addAttribute("orders", orders);
+    model.addAttribute("selectedStatus", status);
+    model.addAttribute("pendingOrders", pendingOrders);
+    model.addAttribute("confirmedOrders", confirmedOrders);
+    model.addAttribute("shippedOrders", shippedOrders);
+    model.addAttribute("deliveredOrders", deliveredOrders);
+    
+    return "seller/orders/list";
+}
+ 
+/**
+ * View order details
+ */
+@GetMapping("/orders/{id}")
+public String viewOrderDetails(@PathVariable Long id,
+                                @AuthenticationPrincipal UserDetails userDetails,
+                                Model model,
+                                RedirectAttributes redirectAttributes) {
+    User user = userService.findByEmail(userDetails.getUsername())
+        .orElseThrow(() -> new IllegalStateException("User not found"));
+    
+    Seller seller = sellerService.getSellerByUser(user)
+        .orElseThrow(() -> new IllegalStateException("Seller profile not found"));
+    
+    Optional<Order> orderOpt = orderService.getOrderByIdOptional(id);
+    
+    if (orderOpt.isEmpty()) {
+        redirectAttributes.addFlashAttribute("errorMessage", "Order not found");
+        return "redirect:/seller/orders";
+    }
+    
+    Order order = orderOpt.get();
+    
+    // Security check - verify order belongs to this seller's products
+    boolean belongsToSeller = order.getItems().stream()
+        .anyMatch(item -> item.getProduct().getSeller().getId().equals(seller.getId()));
+    
+    if (!belongsToSeller) {
+        redirectAttributes.addFlashAttribute("errorMessage", "You can only view your own orders");
+        return "redirect:/seller/orders";
+    }
+    
+    model.addAttribute("seller", seller);
+    model.addAttribute("user", user);
+    model.addAttribute("order", order);
+    
+    return "seller/orders/details";
+}
+ 
+/**
+ * Update order status
+ */
+@PostMapping("/orders/{id}/update-status")
+public String updateOrderStatus(@PathVariable Long id,
+                                 @RequestParam String status,
+                                 @AuthenticationPrincipal UserDetails userDetails,
+                                 RedirectAttributes redirectAttributes) {
+    User user = userService.findByEmail(userDetails.getUsername())
+        .orElseThrow(() -> new IllegalStateException("User not found"));
+    
+    Seller seller = sellerService.getSellerByUser(user)
+        .orElseThrow(() -> new IllegalStateException("Seller profile not found"));
+    
+    try {
+        OrderStatus newStatus = OrderStatus.valueOf(status);
+        orderService.updateOrderStatus(id, newStatus);
+        
+        redirectAttributes.addFlashAttribute("successMessage", 
+            "Order status updated to " + newStatus);
+        
+        return "redirect:/seller/orders/" + id;
+        
+    } catch (IllegalArgumentException e) {
+        redirectAttributes.addFlashAttribute("errorMessage", "Invalid order status");
+        return "redirect:/seller/orders/" + id;
+    } catch (Exception e) {
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        return "redirect:/seller/orders/" + id;
+    }
+}
 }

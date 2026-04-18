@@ -47,22 +47,6 @@
             </div>
         </div>
 
-        <!-- Verification Status -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div th:if="${seller.isVerified}" class="alert alert-success">
-                    <i class="bi bi-patch-check-fill"></i>
-                    <strong>Verified Seller</strong> - Your account is verified and active!
-                </div>
-                <div th:unless="${seller.isVerified}" class="alert alert-warning">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                    <strong>Pending Verification</strong> - Your seller account is under review. 
-                    You can still add products, but they won't be visible to customers until verified.
-                    <a href="/seller/verification" class="alert-link">View Status</a>
-                </div>
-            </div>
-        </div>
-
         <!-- Quick Stats -->
         <div class="row mb-4">
             <div class="col-md-3">
@@ -92,7 +76,9 @@
             <div class="col-md-3">
                 <div class="card text-center bg-light">
                     <div class="card-body">
-                        <h3 class="text-warning">₹0</h3>
+                        <h3 class="text-warning"
+                                th:text="'₹' + ${#numbers.formatDecimal(totalRevenue, 1, 2)}">
+                            </h3>
                         <p class="mb-0">Total Revenue</p>
                     </div>
                 </div>
@@ -158,11 +144,7 @@
                             <div class="col-md-6">
                                 <p><strong>Email:</strong> <span th:text="${user.email}"></span></p>
                                 <p><strong>Joined:</strong> <span th:text="${#temporals.format(seller.joinedAt, 'dd MMM yyyy')}"></span></p>
-                                <p>
-                                    <strong>Status:</strong> 
-                                    <span th:if="${seller.isVerified}" class="badge bg-success">Verified</span>
-                                    <span th:unless="${seller.isVerified}" class="badge bg-warning">Pending Verification</span>
-                                </p>
+                                
                             </div>
                         </div>
                     </div>

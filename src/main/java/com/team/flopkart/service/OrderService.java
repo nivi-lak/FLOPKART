@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.Optional;
 
 
 /**
@@ -113,19 +115,37 @@ public class OrderService {
     }
 
     public List<Order> getOrdersBySeller(Seller seller) {
-        List<OrderItem> orderItems = orderItemRepository.findByProductSeller(seller);
-
-        List<Order> orders = new ArrayList<>();
-        for (OrderItem item : orderItems) {
-            if (!orders.contains(item.getOrder())) {
-                orders.add(item.getOrder());
-            }
-        }
-
-        return orders;
+        // Get all orders
+        List<Order> allOrders = orderRepository.findAll();
+        
+        // Filter orders that contain at least one product from this seller
+        return allOrders.stream()
+            .filter(order -> order.getItems().stream()
+                .anyMatch(item -> item.getProduct().getSeller().getId().equals(seller.getId())))
+            .collect(Collectors.toList());
+    }
+    public List<Order> getOrdersBySellerAndStatus(Seller seller, OrderStatus status) {
+        return getOrdersBySeller(seller).stream()
+            .filter(order -> order.getStatus() == status)
+            .collect(Collectors.toList());
+    }
+    public Optional<Order> getOrderByIdOptional(Long orderId) {
+        return orderRepository.findById(orderId);
+    }
+    
+    /**
+     * Update order status
+     */
+    public Order updateOrderStatus(Long orderId, OrderStatus newStatus) {
+        Order order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+        
+        order.setStatus(newStatus);
+        return orderRepository.save(order);
     }
 
     /**
+     * 
      * Finds order by order number.
      */
     public Order getOrderByOrderNumber(String orderNumber) {
