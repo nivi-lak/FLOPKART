@@ -47,7 +47,6 @@ public class SellerService {
     }
     
     //Update seller profile information
-     */
     public Seller updateSellerProfile(Long sellerId, Seller updatedInfo) {
         Seller existing = sellerRepository.findById(sellerId)
             .orElseThrow(() -> new IllegalArgumentException("Seller not found"));
