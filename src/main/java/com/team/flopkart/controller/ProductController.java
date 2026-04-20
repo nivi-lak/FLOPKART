@@ -8,6 +8,7 @@ import com.team.flopkart.model.User;
 import com.team.flopkart.service.ProductService;
 import com.team.flopkart.service.SellerService;
 import com.team.flopkart.service.UserService;
+import com.team.flopkart.pattern.builder.ProductBuilder;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -81,15 +82,26 @@ public class ProductController {
             return "seller/products/form";
         }
         try {
-            Product product = new Product();
-            product.setName(productForm.getName());
-            product.setDescription(productForm.getDescription());
-            product.setPrice(productForm.getPrice());
-            product.setDiscountPercent(productForm.getDiscountPercent());
-            product.setStockQuantity(productForm.getStockQuantity());
-            product.setImageUrl(productForm.getImageUrl());
-            product.setBrand(productForm.getBrand());
-            product.setActive(productForm.getActive());
+            Product product = new ProductBuilder()
+            .name(productForm.getName())
+            .description(productForm.getDescription())
+            .price(productForm.getPrice()) // since builder takes double
+            .discount(productForm.getDiscountPercent())
+            .stock(productForm.getStockQuantity())
+            .brand(productForm.getBrand())
+            .imageUrl(productForm.getImageUrl())
+            .active(productForm.getActive())
+            .seller(seller)
+            .build();
+            // Product product = new Product();
+            // product.setName(productForm.getName());
+            // product.setDescription(productForm.getDescription());
+            // product.setPrice(productForm.getPrice());
+            // product.setDiscountPercent(productForm.getDiscountPercent());
+            // product.setStockQuantity(productForm.getStockQuantity());
+            // product.setImageUrl(productForm.getImageUrl());
+            // product.setBrand(productForm.getBrand());
+            // product.setActive(productForm.getActive());
             productService.createProduct(product, seller, productForm.getCategoryId());
             redirectAttributes.addFlashAttribute("successMessage", "Product added successfully!");
             return "redirect:/seller/products";
