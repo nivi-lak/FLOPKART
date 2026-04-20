@@ -3,12 +3,9 @@ import com.team.flopkart.model.Product;
 
 import java.math.BigDecimal;
  
-/**
- * MEMBER 2 - DECORATOR PATTERN
- * 
- * Base implementation that returns the product's base price.
- * This is the core component that decorators will wrap.
- */
+
+//Base implementation - returns the product's base price
+
 public class BasePriceCalculator implements PriceCalculator {
     
     private final Product product;
