@@ -2,22 +2,14 @@ package com.team.flopkart.pattern.decorator;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
  
-/**
- * MEMBER 2 - DECORATOR PATTERN
- * 
- * Decorator that applies a coupon code discount.
- * Coupon is typically applied after product discount but before/after tax.
- */
+//applies coupon
+
 public class CouponDecorator extends PriceCalculatorDecorator {
     
     private final String couponCode;
     private final Double couponDiscountPercent;
     
-    /**
-     * @param calculator Previous calculator in the chain
-     * @param couponCode Coupon code being applied
-     * @param couponDiscountPercent Discount percentage from coupon (e.g., 20.0 for 20%)
-     */
+    //PriceCalculator is the previous calculator in the chain
     public CouponDecorator(PriceCalculator calculator, 
                            String couponCode, 
                            Double couponDiscountPercent) {
@@ -39,7 +31,6 @@ public class CouponDecorator extends PriceCalculatorDecorator {
             .multiply(BigDecimal.valueOf(couponDiscountPercent))
             .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
         
-        // Subtract coupon discount
         return priceBeforeCoupon.subtract(couponDiscount);
     }
     
