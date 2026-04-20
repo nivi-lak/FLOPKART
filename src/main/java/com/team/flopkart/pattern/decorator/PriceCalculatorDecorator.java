@@ -2,12 +2,10 @@ package com.team.flopkart.pattern.decorator;
 
 import java.math.BigDecimal;
  
-/**
- * MEMBER 2 - DECORATOR PATTERN
- * 
- * Abstract decorator base class.
- * All concrete decorators will extend this class.
- */
+
+ //abstract decorator base class.
+ //all concrete decorators will extend this class.
+ 
 public abstract class PriceCalculatorDecorator implements PriceCalculator {
     
     protected PriceCalculator wrappedCalculator;
