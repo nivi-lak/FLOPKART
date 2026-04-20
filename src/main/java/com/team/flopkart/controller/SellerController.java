@@ -25,28 +25,7 @@ import java.util.Optional;
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
- * MEMBER 2 - MAJOR USE CASE CONTROLLER
- * 
- * Controller for seller registration, profile management, and dashboard.
- * 
- * USE CASE FLOWS:
- * 1. Seller Registration Flow:
- *    - User registers with SELLER role
- *    - After login, redirected to complete seller profile
- *    - Enters shop details, GST, bank info
- *    - Profile created (unverified)
- * 
- * 2. Seller Profile Management:
- *    - View own profile
- *    - Edit shop details
- *    - View verification status
- * 
- * 3. Seller Dashboard:
- *    - Overview of shop
- *    - Link to manage products (Member 1's feature)
- *    - View orders (Member 4's feature)
- */
+//seller registration, profile manaagement and dashboard
 @Controller
 @RequestMapping("/seller")
 public class SellerController {
@@ -62,9 +41,7 @@ public class SellerController {
         this.orderService = orderService;
     }
     
-    /**
-     * Show seller dashboard (landing page after seller login)
-     */
+    //dashboard
     @GetMapping("/dashboard")
     public String showDashboard(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         User user = userService.findByEmail(userDetails.getUsername())
@@ -101,10 +78,7 @@ public class SellerController {
         return "seller/dashboard";
     }
     
-    /**
-     * Show seller registration form
-     * (Called after user with SELLER role first logs in)
-     */
+    //seller registration form
     @GetMapping("/register")
     public String showRegistrationForm(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         User user = userService.findByEmail(userDetails.getUsername())
@@ -128,9 +102,7 @@ public class SellerController {
         return "seller/register";
     }
     
-    /**
-     * Process seller registration
-     */
+    //seller registration
     @PostMapping("/register")
     public String registerSeller(@AuthenticationPrincipal UserDetails userDetails,
                                   @Valid @ModelAttribute("seller") Seller seller,
@@ -165,9 +137,7 @@ public class SellerController {
         }
     }
     
-    /**
-     * Show seller profile page
-     */
+    //seller profile page
     @GetMapping("/profile")
     public String showProfile(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         User user = userService.findByEmail(userDetails.getUsername())
@@ -183,9 +153,7 @@ public class SellerController {
         return "seller/profile";
     }
     
-    /**
-     * Show edit profile form
-     */
+    //edit profile form
     @GetMapping("/profile/edit")
     public String showEditProfileForm(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         User user = userService.findByEmail(userDetails.getUsername())
@@ -201,9 +169,7 @@ public class SellerController {
         return "seller/profile";
     }
     
-    /**
-     * Update seller profile
-     */
+    //Update seller profile
     @PostMapping("/profile/edit")
     public String updateProfile(@AuthenticationPrincipal UserDetails userDetails,
                                 @Valid @ModelAttribute("seller") Seller updatedSeller,
@@ -239,9 +205,7 @@ public class SellerController {
         }
     }
     
-    /**
-     * Show verification status page
-     */
+    //Show verification status page
     @GetMapping("/verification")
     public String showVerificationStatus(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         User user = userService.findByEmail(userDetails.getUsername())
