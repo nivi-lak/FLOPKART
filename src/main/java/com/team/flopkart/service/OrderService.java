@@ -14,6 +14,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Optional;
 
+import com.team.flopkart.pattern.decorator.BasePriceCalculator;
+import com.team.flopkart.pattern.decorator.DiscountDecorator;
+import com.team.flopkart.pattern.decorator.TaxDecorator;
+import com.team.flopkart.pattern.decorator.PriceCalculator;
+
 
 /**
  * Service for Order operations.
@@ -44,12 +49,25 @@ public class OrderService {
             throw new IllegalArgumentException("Cart items cannot be empty");
         }
 
-        // Calculate total amount
+        // Calculate total amount WITH decorator chain (discount + GST)
         BigDecimal totalAmount = BigDecimal.ZERO;
         for (CartItem cartItem : cartItems) {
+            
+            // DECORATOR CHAIN — built per product at runtime
+            PriceCalculator calculator = new BasePriceCalculator(cartItem.getProduct());
+            
+            if (cartItem.getProduct().getDiscountPercent() != null 
+                    && cartItem.getProduct().getDiscountPercent() > 0) {
+                calculator = new DiscountDecorator(calculator, cartItem.getProduct().getDiscountPercent());
+            }
+            
+            // Always apply 18% GST
+            calculator = new TaxDecorator(calculator, 18.0);
+            
+            BigDecimal priceWithTax = calculator.calculatePrice();
+            
             totalAmount = totalAmount.add(
-                cartItem.getProduct().getPrice()
-                    .multiply(BigDecimal.valueOf(cartItem.getQuantity()))
+                priceWithTax.multiply(BigDecimal.valueOf(cartItem.getQuantity()))
             );
         }
 
@@ -57,14 +75,27 @@ public class OrderService {
         Order order = new Order(user, null, totalAmount, shippingAddress, shippingCity, shippingPincode);
         order = orderRepository.save(order);
 
-        // Create order items and populate order relationship
+        // Create order items with tax-inclusive price
         List<OrderItem> savedItems = new ArrayList<>();
         for (CartItem cartItem : cartItems) {
+            
+            // Run chain again per item to get individual final price
+            PriceCalculator calculator = new BasePriceCalculator(cartItem.getProduct());
+            
+            if (cartItem.getProduct().getDiscountPercent() != null 
+                    && cartItem.getProduct().getDiscountPercent() > 0) {
+                calculator = new DiscountDecorator(calculator, cartItem.getProduct().getDiscountPercent());
+            }
+            
+            calculator = new TaxDecorator(calculator, 18.0);
+            
+            BigDecimal finalPrice = calculator.calculatePrice(); // ← tax inclusive
+            
             OrderItem orderItem = new OrderItem(
                 order,
                 cartItem.getProduct(),
                 cartItem.getQuantity(),
-                cartItem.getProduct().getPrice()
+                finalPrice  // ← was cartItem.getProduct().getPrice()
             );
             orderItem = orderItemRepository.save(orderItem);
             savedItems.add(orderItem);
@@ -72,7 +103,6 @@ public class OrderService {
         order.setItems(savedItems);
         orderRepository.save(order);
 
-        // Publish order creation event (status change from null to PENDING)
         orderEventPublisher.publishOrderStatusChange(order, null, OrderStatus.PENDING);
 
         return order;

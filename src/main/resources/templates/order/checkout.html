@@ -19,10 +19,11 @@
                     <div class="card-body">
                         <h5 th:text="${item.product.name}">Product Name</h5>
                         <p>Quantity: <span th:text="${item.quantity}">1</span></p>
-                        <p>Price: ₹<span th:text="${item.product.price}">0.00</span></p>
-                    </div>
-                </div>
-                <h4>Total: ₹<span th:text="${cart.getSubtotal()}">0.00</span></h4>
+                        <p>Base Price: ₹<span th:text="${item.product.price}">0.00</span></p>
+                        <p>GST (18%): ₹<span th:text="${#numbers.formatDecimal(item.product.price * 0.18, 1, 2)}">0.00</span></p>
+                        <p>Price (incl. GST): ₹<span th:text="${#numbers.formatDecimal(item.product.price * 1.18, 1, 2)}">0.00</span></p>
+
+                        <h4>Total (incl. GST): ₹<span th:text="${#numbers.formatDecimal(cart.getSubtotal() * 1.18, 1, 2)}">0.00</span></h4>
             </div>
 
             <div class="col-md-4">
