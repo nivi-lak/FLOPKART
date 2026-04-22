@@ -7,18 +7,11 @@ import java.math.BigDecimal;
 import com.team.flopkart.model.Category;
 import com.team.flopkart.model.Seller;
 
-/**
- * Builder pattern for Product construction.
- * Creational pattern: constructs Product objects step by step without telescoping constructors.
- * Demonstrates OCP: adding new fields doesn't require modifying existing code.
- * PLACEHOLDER: This is a placeholder implementation for testing purposes.
- * Full implementation will be provided by Member 1.
- */
 public class ProductBuilder {
 
     private String name;
     private String description;
-    private double price;
+    private BigDecimal price;
     private int discountPercent;
     private int stockQuantity;
     private String brand;
@@ -37,7 +30,7 @@ public class ProductBuilder {
         return this;
     }
 
-    public ProductBuilder price(double price) {
+    public ProductBuilder price(BigDecimal price) {
         this.price = price;
         return this;
     }
@@ -78,10 +71,21 @@ public class ProductBuilder {
     }
 
     public Product build() {
+        if (name == null || name.isBlank()) {
+            throw new IllegalStateException("Product name is required");
+        }
+
+        if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalStateException("Valid price is required");
+        }
+
+        if (seller == null) {
+            throw new IllegalStateException("Seller is required");
+        }
         Product product = new Product();
         product.setName(name);
         product.setDescription(description);
-        product.setPrice(BigDecimal.valueOf(price));
+        product.setPrice(price);
         product.setDiscountPercent(discountPercent);
         product.setStockQuantity(stockQuantity);
         product.setBrand(brand);

@@ -7,11 +7,10 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * SellerForm DTO — Member 2.
- * Backs the seller registration HTML form.
- * Keeps validation logic out of the Seller entity (SRP).
- */
+
+//backs seller registration html form
+//no validation logic
+
 @Getter
 @Setter
 public class SellerForm {

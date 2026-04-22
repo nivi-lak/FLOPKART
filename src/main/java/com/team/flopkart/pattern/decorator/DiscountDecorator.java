@@ -3,12 +3,7 @@ package com.team.flopkart.pattern.decorator;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
  
-/**
- * MEMBER 2 - DECORATOR PATTERN
- * 
- * Decorator that applies discount percentage to the price.
- * This decorator reads the discount from the product and applies it.
- */
+//applies discount
 public class DiscountDecorator extends PriceCalculatorDecorator {
     
     private final Integer discountPercent;
@@ -31,7 +26,6 @@ public class DiscountDecorator extends PriceCalculatorDecorator {
             .multiply(BigDecimal.valueOf(discountPercent))
             .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
         
-        // Subtract discount from base price
         return basePrice.subtract(discountAmount);
     }
     

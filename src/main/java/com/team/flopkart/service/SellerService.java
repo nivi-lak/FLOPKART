@@ -9,31 +9,21 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
  
-/**
- * MEMBER 2 - MAJOR USE CASE SERVICE
- * 
- * Service for seller registration, profile management, and verification.
- * 
- * DEMONSTRATES SRP:
- * - This service handles ONLY seller-related business logic
- * - Product management is NOT here (that's in ProductService - Member 1)
- * - Product search is NOT here (that's in ProductSearchService - Member 2)
- */
+
+//Service for seller registration, profile management, and verification.
+
 @Service
 @Transactional
 public class SellerService {
     
     private final SellerRepository sellerRepository;
     
-    // Constructor injection for DIP compliance
     public SellerService(SellerRepository sellerRepository) {
         this.sellerRepository = sellerRepository;
     }
     
-    /**
-     * Register a new seller profile for a user with SELLER role
-     * This is called AFTER user registration when role = SELLER
-     */
+    //Register a new seller profile for a user with SELLER role
+
     public Seller registerSeller(Seller seller) {
         // Validate user has SELLER role
         if (seller.getUser() == null) {
@@ -56,9 +46,7 @@ public class SellerService {
         return sellerRepository.save(seller);
     }
     
-    /**
-     * Update seller profile information
-     */
+    //Update seller profile information
     public Seller updateSellerProfile(Long sellerId, Seller updatedInfo) {
         Seller existing = sellerRepository.findById(sellerId)
             .orElseThrow(() -> new IllegalArgumentException("Seller not found"));
@@ -83,30 +71,22 @@ public class SellerService {
         return sellerRepository.save(existing);
     }
     
-    /**
-     * Get seller profile by user
-     */
+    //Get seller profile by user
     public Optional<Seller> getSellerByUser(User user) {
         return sellerRepository.findByUser(user);
     }
     
-    /**
-     * Get seller profile by user ID
-     */
+    // Get seller profile by user ID
     public Optional<Seller> getSellerByUserId(Long userId) {
         return sellerRepository.findByUserId(userId);
     }
     
-    /**
-     * Get seller by ID
-     */
+    //Get seller by ID
     public Optional<Seller> getSellerById(Long sellerId) {
         return sellerRepository.findById(sellerId);
     }
     
-    /**
-     * Verify a seller (admin function)
-     */
+    //Verify a seller (admin function)
     public void verifySeller(Long sellerId) {
         Seller seller = sellerRepository.findById(sellerId)
             .orElseThrow(() -> new IllegalArgumentException("Seller not found"));
@@ -115,9 +95,7 @@ public class SellerService {
         sellerRepository.save(seller);
     }
     
-    /**
-     * Unverify a seller (admin function)
-     */
+    //Unverify a seller (admin function)
     public void unverifySeller(Long sellerId) {
         Seller seller = sellerRepository.findById(sellerId)
             .orElseThrow(() -> new IllegalArgumentException("Seller not found"));
@@ -126,30 +104,22 @@ public class SellerService {
         sellerRepository.save(seller);
     }
     
-    /**
-     * Get all verified sellers
-     */
+    //Get all verified sellers
     public List<Seller> getVerifiedSellers() {
         return sellerRepository.findByIsVerifiedTrue();
     }
     
-    /**
-     * Get all pending verification sellers (admin)
-     */
+    // Get all pending verification sellers (admin)
     public List<Seller> getPendingVerificationSellers() {
         return sellerRepository.findByIsVerifiedFalse();
     }
     
-    /**
-     * Search sellers by shop name
-     */
+    //Search sellers by shop name
     public List<Seller> searchSellersByShopName(String shopName) {
         return sellerRepository.findByShopNameContainingIgnoreCase(shopName);
     }
     
-    /**
-     * Check if user has seller profile
-     */
+    //Check if user has seller profile
     public boolean hasSellerProfile(User user) {
         return sellerRepository.existsByUser(user);
     }

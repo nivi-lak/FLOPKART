@@ -9,23 +9,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-/**
- * MEMBER 2 - MAJOR CLASS
- * 
- * Seller entity representing a vendor/merchant in the marketplace.
- * 
- * DESIGN PRINCIPLE APPLIED: SRP (Single Responsibility Principle)
- * - This class is responsible ONLY for seller profile data
- * - Product CRUD is handled by Product class (Member 1)
- * - Product search/filtering is handled by ProductSearch service (Member 2)
- * - Each class has exactly one reason to change
- * 
- * Demonstrates SRP by:
- * 1. Seller contains only seller-specific attributes (shop details, verification status)
- * 2. Does NOT contain product management logic
- * 3. Does NOT contain search/filter logic
- * 4. Separation of concerns: profile data vs. business operations
- */
+//This class is responsible ONLY for seller profile data
+
 @Entity
 @Table(name = "sellers")
 @Data
@@ -37,10 +22,8 @@ public class Seller {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    /**
-     * Link to the User account with SELLER role
-     * One User can have one Seller profile
-     */
+    //Link to the User account with SELLER role
+    // One User can have one Seller profile
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
@@ -86,10 +69,6 @@ public class Seller {
         }
     }
     
-    /**
-     * Business method demonstrating SRP:
-     * Only handles verification status toggle - no product logic
-     */
     public void verify() {
         this.isVerified = true;
     }

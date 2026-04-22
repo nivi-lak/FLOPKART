@@ -8,12 +8,9 @@ import java.util.Optional;
 
 import java.util.List;
 
-/**
- * SellerRepository — Member 2.
- *
- * Design Principle: OCP note — new query methods can be added here
- * without touching the Seller entity class itself.
- */
+//OCP note — new query methods can be added here
+ // without touching the Seller entity class itself.
+
 public interface SellerRepository extends JpaRepository<Seller, Long> {
 
     Optional<Seller> findByUser(User user);
